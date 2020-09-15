@@ -1,0 +1,139 @@
+
+ㅁ ws_invitaion 에서
+초대된 날짜로부터 +7일인 날짜가 현재날짜보다 작으면 삭제됨. 
+이 액션을 어디에 실행시킬까
+로그인했을때?
+ 서블릿 처음 실행했을때? 
+
+select date_add( (select acc_date from ws_invitation) , INTERVAL 7 DAY)
+ㅁ ws초대리스트 Dday삭제 
+	// select date_add( (select acc_date from ws_invitation) , INTERVAL 7 DAY)
+	// parameter : X
+	// return : String[]
+ -> 초대요청 보낸일로부터 7일째되는 날 삭제됨. 
+-> 리턴값이 현재날짜보다 같거나 작으면 삭제시키기 (워크스페이스 입장 전에 action처리)
+
+
+
+////20.8.19   
+초대한 날짜의 7일째 되는 날짜 구하기 
+mysql>  select date_add( acc_date , INTERVAL 7 DAY) from ws_invitation;
++--------------------------------------+
+| date_add( acc_date , INTERVAL 7 DAY) |
++--------------------------------------+
+| 2020-08-25 03:09:56                  |
+| 2020-08-25 03:22:15                  |
+| 2020-08-25 03:22:20                  |
+| 2020-08-25 03:22:30                  |
+| 2020-08-25 03:23:39                  |
++--------------------------------------+
+
+7일째 되는 날짜가 현재 날짜랑 일치되는 데이터들 삭제  ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★
+delete from ws_invitation where date(now()) in (  date_add( acc_date , INTERVAL 7 DAY));
+///
+
+
+ delete
+ 
+select* from ws_invitation where acc_date in (
+	 select tmp.acc_date from (
+	  select date_add( (select acc_date from ws_invitation) , INTERVAL 7 DAY) >now()) acc_date  tmp )
+	 
+	 select acc_date from ws_invitation where DATE_ADD(acc_date, INTERVAL 7 DAY) >now()) tmp )
+	 
+	 
+	 
+	 
+	 delete 
+	 select *from ws_invitation 
+						where   date(subdate(acc_date, INTERVAL 7 DAY)) < date(now())
+
+# 1개월 전 데이터 조회
+SELECT
+    *
+FROM
+    `테이블`
+WHERE
+    `시간` > SUBDATE(NOW(), INTERVAL 1MONTH);
+
+
+# 1개월 전 데이터 조회
+SELECT * FROM ws_invitation WHERE date(now()) > (select date_add( (select acc_date from ws_invitation) , INTERVAL 7 DAY));
+    
+    
+     SUBDATE(acc_date, INTERVAL 7 DAY);
+
+
+
+
+
+
+<자동날짜기능 ? >  
+-저장된 날짜가 현재 날짜보다 작으면 삭제 - ws_invitation
+
+
+<<<알림페이지>>>>
+ㅁ 분류하기 : 아코디언으로 분류 : 최근 7일 알림들 , 7일 이후 알림들  //이렇게 나눌지 ?##  카테고리별  ?
+
+
+<<<<<<<<<<미리알림 기능 >>>>>>>>>>>>>>work_alarm 
+설정한 미리알림 날짜가 되면 알림페이지에 띄우고, 해당 업무 글에도 표시되게하기 (알림 설정한 해당 pw_member에만 보이는거임 : 조건 where jyp_no =? ) 
+-> 액션은 어디에 ???? 워크스페이스 홈 들어가기 전에 @미리알림 액션 거쳐가기 
+@미리알림액션 짜기 
+유저가(jyp_no) 입장하려는 워크스페이스의 (ws_no) 업무날짜가(work_alarm) 현재날짜이면 (now()) 
+->알림페이지에 띄우기    
+
+
+
+
+//////////////////////////////////////////////
+
+<<미리알림>> 
+-> 알림페이지 클릭하면 액션 거쳐가기 
+설정한 날짜가 됐으면 ( work_alarm =now() ) 알림창 띄우기 
+
+1. 설정한 알림 날짜가 현재 날짜라면 하루동안 , 지났으면 마감으로 
+	-> 그럼 sql if문으로 ??? 알림날짜가 오늘이면 1 , 지났으면 2       안지났으면 3? 
+	
+select work_no from pw_member  where now() = date(work_alarm);
+select work_no from pw_member where now() < date(work_alarm);
+
+
+1. 설정한 알림 날짜가 현재 날짜보다 (정보까지 출력할까 날짜만 판단할까 ? ) 	
+select w.*, pw.work_alarm
+from p_work w join pw_member pw
+on w.work_no  = pw.work_no 
+where pw.work_no in ( select work_no from pw_member pw where now() < date(work_alarm) )
+
+2. 업무에 대한 정보(p_work) + 업무 알림날짜 (pw_member) 
+select w.*, pw.work_alarm 
+from p_work w join pw_member pw
+on w.work_no = pw.work_no 
+where pw.work_no = 153;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

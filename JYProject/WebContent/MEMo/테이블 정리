@@ -1,0 +1,142 @@
+<<테이블정리>> 
+## 성별 테이블 / 부서 /직함 / 정보 구별하는 테이블 만들기 시간나면 
+
+drop table p_coments;
+drop table p_member;
+drop table p_work;
+drop table p_worklist;
+drop table pw_member;
+
+
+ㅁ jyproject에 가입된 회원정보(jyp_member)
+	회원번호(jyp_no int not null auto_increment primary key), ##
+	회원이메일(jyp_email varchar(200) not null), 
+	회원이름(jyp_name varchar(100) not null), 
+	회원비밀번호(jyp_pass varchar(50) not null  ),
+	회원전화번호(jyp_tel varchar(100) not null),
+	회원성별(gender char(5) not null), 
+	회원생일(birth date),
+	회원가입날짜(jyp_date datetime not null default CURRENT_TIMESTAMP),
+	회원아이피(jyp_ip varchar(100) not null),
+	 회원 부서(dept varchar(50) default '-'), 
+	 회원직함(position  varchar(50) default '-')
+	프로필사진(jyp_profile varchar(200) not null default 'noImg.png' )
+
+
+ㅁ 워크스페이스 정보(jyp_workspace)  //// 워크스페이스정보 테이블과 워크스페이스 멤버 테이블을 분리해야될까? 
+	워크스페이스 번호(ws_no int not null auto_increment primary key)##, 
+	워크스페이스 이름(ws_name varchar(100) not null), 
+	워크스페이스 관리자(생성한 회원)(jyp_no int not null) // 회원번호 넣기 jyp_no로 ? 
+	워크스페이스를 생성한 회원의 아이피(ws_ip varchar(100) not null),
+	워크스페이스 생성날짜(ws_date datetime not null default CURRENT_TIMESTAMP),  // 
+	워크스페이스 삭제여부(ws_del char(5) not null default 'n'), 
+	워크스페이스 삭제될 날짜(ws_delDday  datetime)
+
+//
+ㅁ 워크스페이스 멤버(ws_member)
+	워크스페이스 번호(ws_no int not null)
+	워크스페이스에 소속된 회원 번호(jyp_no int not null)
+	워크스페이스에 소속된 날짜 (ws_Mdate datetime not null default CURRENT_TIMESTAMP)
+	워크스페이스에 소속된 멤버 아이피 (ws_Mip varchar(100) not null)
+
+	
+
+ㅁ 프로젝트 정보(jyp_project)
+	프로젝트 번호(p_no int not null auto_increment primary key)
+	프로젝트의 해당 워크스페이스 번호(ws_no int not null)##
+	프로젝트 이름(p_name varchar(50) not null)
+	프로젝트 간단 설명 (p_info text)
+	프로젝트 업무상태( p_status int not null default 1) 
+	// 1:상태없음(기본설정), 2:계획됨, 3: 진행중, 4: 완료됨, 5:보류, 6:취소 
+	프로젝트 시작일  (p_start datetime) 
+	프로젝트 마감일 (p_end datetime)
+	프로젝트 실제 완료일 (p_complete datetime)
+	프로젝트 공개여부 ( p_public char(5) not null) // y공개/n비공개 
+	프로젝트 생성된 날짜 ( p_date datetime not null default CURRENT_TIMESTAMP)
+	프로젝트 생성한 멤버의 아이피  (p_ip varchar(100) not null)
+++ 프로젝트 생성한 멤버의 회원 번호(jyp_no int not null)
+
+ㅁ 프로젝트 멤버 (p_member)
+	프로젝트의 해당 워크스페이스 번호(ws_no int not null)##
+	프로젝트 번호(p_no int not null)##
+	프로젝트에 소속된 사원 번호 (jyp_no int not null)
+	프로젝트에 대한 권한   (p_access int not null default 2) //1 : 관리자 2: 팀원 (프로젝트 생성하는 사람은 1로 ) 
+	프로젝트에 소속된 날짜 (p_Mdate datetime not null CURRENT_TIMESTAMP)
+	프로젝트에 소속된 멤버 아이피 (p_Mip varchar(100) not null)
+	
+
+ㅁ 업무리스트 (p_worklist)
+	업무리스트 번호 (wl_no int not null auto_increment primary key)
+	프로젝트의 해당 워크스페이스 번호(ws_no int not null)##
+	프로젝트 번호(p_no int not null)	##
+	업무리스트 작성한 회원 번호(jyp_no int not null)
+	업무리스트 이름(wl_name varchar(100) not null)
+//	업무리스트 생성된 날짜 ( wl_date datetime not null default CURRENT_TIMESTAMP)
+//	업무리스트 생성한 멤버의 아이피  (wl_ip varchar(100) not null)
+
+ㅁ 업무리스트에서의 업무들(p_work)
+	업무 번호(work_no int not null auto_increment primary key)
+	프로젝트의 해당 워크스페이스 번호(ws_no int not null)##
+	프로젝트 번호(p_no int not null)	##
+	업무리스트 번호(wl_no int not null)##
+	업무작성한 회원 번호(jyp_no int not null)
+	업무 내용 ( work_content text not null)
+	업무 시작일 (work_start date)
+	업무 마감일 ( worl_end date)
+	업무 미리알람 (work_alarm datetime)
+	업무완료 유무 ( work_finish int not null default 1) // 1: 미완료(기본설정) , 2: 완료
+	업무 작성한 날짜 (work_date datetime not null default CURRENT_TIMESTAMP)
+	업무 작성한 멤버의 아이피  (work_ip varchar(100) not null)
+	파일 첨부 (file varchar(200) default 'no.jpg' )
+	업무완료확인여부(work_com char(5) not null default 'n')
+	라벨색상(work_label varchar(50) not null default '#fdfdfd00')
+
+ㅁ 업무에 달린 코멘트 (p_coments)
+	코멘트 번호(co_no int not null auto_increment primary key)
+	프로젝트의 해당 워크스페이스 번호(ws_no int not null)##
+	프로젝트 번호(p_no int not null)	##
+	업무리스트 번호(wl_no int not null)##
+	업무 번호 (work_no int not null)##
+	코멘트 작성자 회원 번호(jyp_no int not null)
+	코멘트 작성 내용(comment varchar(100) not null)
+	코멘트 작성 날짜(co_date datetime not null default CURRENT_TIMESTAMP)
+	코멘트 작성한 멤버 아이피(co_ip varchar(100) not null) 
+	//리댓 필드
+	co_group int default 0 
+	co_step int default 0
+	co_indent int default 0 
+
+ㅁ 담당된 멤버 (pw_member)
+	워크스페이스 번호(ws_no int not null)
+	프로젝트 번호(p_no  int not null)
+	업무리스트 번호(wl_no int not null)
+	업무 번호(work_no int not null)
+	멤버 번호(jyp_no int not null)
+	멤버 아이피 번호(jyp_ip varchar(100) not null)
+	업무미리알림(개별설정)(work_alarm datetime )
+	업무에 배정된 날짜(pw_Mdate datetime not null default CURRENT_TIMESTAMP)
+	업무확인여부 (work_check char(5) not null default 'n')
+
+ㅁ 워크스페이스 초대 등록된 리스트 (ws_invitation)
+	초대리스트 번호 (invi_no int not null auto_increment primary key)
+	초대를 보내는 회원의 아이디 (send_email varchar(100) not null)
+	초대를 보내는 회원의 아이피 ( send_ip varchar(100) not null)
+	초대를 받는 회원의 아이디(get_email varchar(100) not null)
+	초대를 받는 회원의 아이피(get_ip varchar(100) not null)
+	초대되는 워크스페이스 번호(ws_no int not null)
+	초대되는 워크스페이스 이름(ws_name varchar(100) not null)
+	초대를 보낸 날짜시간(acc_date datetime not null default CURRENT_TIMESTAMP)
+	초대 수락상태  (ass_satatus char(5) not null default 'n')// 'y':수락 , 'n':거절  -> 기본값 'n'
+
+
+
+
+
+
+//
+
+
+
+
+
+

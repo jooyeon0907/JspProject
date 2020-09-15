@@ -1,0 +1,177 @@
+<<프로젝트 카데고리 DAO>>
+///P_Work_DAO 업무삭제 수정하기 (쪼개서)
+ 
+
+ㅁ. 워크스페이스 삭제하기 
+- 워크스페이스의 관리자 (jyp_workspace의 jyp_no)이고,   
+ 관리자의 이메일과 패스가 맞다면 ( jyp_member의 jyp_email, jyp_pass)m
+해당 워크스페이스 삭제 (jyp_workspace의 ws_no에 해당되는 워크스페이스 삭제)  
+
+/////다시  (모든 테이블에 데이터가 들어가있는 상태에만 삭제 실행이 됨 ) 
+mysql> delete t1, t2, t3
+    -> from t1  join t2  join t3
+    -> where t1.no=t2.no and t1.no=t3.no and t1.no=2;
+    
+   ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+delete jyp_workspace,ws_member,jyp_project,p_member,p_worklist,p_work,pw_member 
+from jyp_workspace
+join ws_member 
+join jyp_project 
+join p_member
+join p_worklist 
+join p_work 
+join pw_member 
+where jyp_workspace.ws_no = ws_member.ws_no
+and jyp_workspace.ws_no = jyp_project.ws_no
+and jyp_workspace.ws_no = p_member.ws_no
+and jyp_workspace.ws_no = p_worklist.ws_no
+and jyp_workspace.ws_no = p_work.ws_no
+and jyp_workspace.ws_no = pw_member.ws_no
+and jyp_workspace.ws_no= 57;
+/////// ->  워크스페이스 생성할때  각 테이블에도 샘플 데이터 하나씩 넣어두기   
+//삭제
+
+//
+-워크스페이스 삭제될 때 // 같이 삭제해야되는 것들 (최상위 데이터?이므로 프로젝트 카테고리의 테이블들에서 ws_no에 해당되는 데이터들 모두 삭제 )     //jyp_member 제외 
+/////delete 
+
+delete ws,wm,pro,pm,wl,work,pwm 
+from jyp_workspace ws 
+inner join ws_member wm
+inner join jyp_project pro
+inner join p_member pm
+inner join p_worklist wl
+inner join p_work work
+inner join pw_member pwm
+inner join jyp_member jm 
+where ws.ws_no= 28 and  wm.ws_no= 28 and  pro.ws_no= 28 
+and  pm.ws_no= 28 and wl.ws_no= 28 and  work.ws_no= 28 and  pwm.ws_no= 28
+and ws.jyp_no =3 and jm.jyp_email='333@333' and jm.jyp_pass='333';
+
+
+and ws.jyp_no = 4 and jm.jyp_email='44@44' and jm.jyp_pass='44';
+
+//확인해보기
+select*from jyp_workspace  where ws_no=25;
+select*from ws_member   where ws_no=25;
+select*from jyp_project   where ws_no=25;
+select*from p_member where ws_no=25;
+select*from p_worklist   where ws_no=25;
+select*from p_work where ws_no=25;
+select*from pw_member   where ws_no=25;
+///
+
+/////////////////////////////////
+////워크스페이스 삭제하기 최종 
+워크스페이스 생성시 모든 하위 테이블에 샘플 데이터 하나씩 넣어주기 
+ jyp_workspace,ws_member,는 원래 추가 
+ -> jyp_project,p_member,p_worklist,p_work,pw_member 
+ -> 각각의 dao에서 insert into 사용되는거 쓰면됨  
+ 
+ ★★★ -> 샘플 데이터에는 no를 0으로 주기  (ALTER TABLE ??? AUTO_INCREMENT=0;)  
+ALTER TABLE jyp_project AUTO_INCREMENT=1;
+ALTER TABLE p_member AUTO_INCREMENT=1;
+ALTER TABLE p_worklist AUTO_INCREMENT=1;
+ALTER TABLE p_work AUTO_INCREMENT=1;
+ALTER TABLE pw_member AUTO_INCREMENT=1;
+///확인해보기
+select*from jyp_project;
+select*from p_member;
+select*from p_worklist;
+select*from p_work;
+select*from pw_member;
+//
+초기화
+delete from jyp_project;
+delete from p_member;
+delete from p_worklist;
+delete from p_work;
+delete from pw_member;
+
+///워크스페이스 초기화 
+delete from jyp_workspace;
+delete from ws_member;
+
+
+select*from jyp_workspace;
+select*from ws_member;
+
+ALTER TABLE jyp_workspace AUTO_INCREMENT=1;
+
+
+
+★★★-> jyp_project,p_member,p_worklist,p_work,pw_member을 select할때 no가 0인 것 제외시키고 출력 
+
+/////////////////////////////////
+--
+dao - 1.워크스페이스 관리자 권한 , 2. 권리자의 이메일과 패스가 맞다면 해당 워크스페이스 삭제 
+1. 워크스페이스 관리자 번호 조회
+select jyp_no from jyp_workspace where ws_no=? /////
+아니면 ws_info()에서 jyp_no 뽑아오기 ###
+
+
+2. 관리자라면  권리자의 이메일과 패스가 맞다면 해당 워크스페이스 삭제 
+delete ws 
+from jyp_workspace ws inner join jyp_member jm
+on ws.jyp_no = jm.jyp_no
+where ws.ws_no = ?
+ and jm.jyp_email=? and jm.jyp_pass=?;
+
+	
+	 *같이 삭제해야되는 것들 (최상위 데이터?이므로 프로젝트 카테고리의 테이블들에서 ws_no에 해당되는 데이터들 모두 삭제 )     //jyp_member 제외 
+	- 워크스페이스에 속한 프로젝트들 삭제하기 
+		delete from jyp_workspace where ws_no =?
+	- 워크스페이스에 속한 업무리스트들 삭제하기
+		delete from p_worklist where ws_no=?
+	- 워크스페이스에 속한 업무들 삭제하기
+		delete from p_work where ws_no=?
+	
+
+
+
+
+---------------------------------------------------------------
+ㅁ 소속된 워크스페이스 리스트
+ select w.* 
+ from jyp_workspace w join  ws_member wm 
+ where w.jyp_no = wm.jyp_no 
+ and wm.jyp_no=3 group by w.ws_no;
+ //
+ 
+ mysql> select ws_no from ws_member where jyp_no=3;
++-------+
+| ws_no |
++-------+
+|    32 |
+|    29 |
++-------+
+  
+  
+ select*from jyp_workspace where  ws_no in (select ws_no from ws_member where jyp_no=3); 
+  
+  
+  
+  -----------------------------------------------
+  ㅁ 워크스페이스 소속 멤버 정보 뽑아오기 
+  select jm.* from jyp_member jm join ws_member wm using(jyp_no) where jyp_no=4; X
+  
+  
+
+  select jyp_no from ws_member where ws_no=29;
++--------+
+| jyp_no |
++--------+
+|      4 |
+|      3 |
++--------+
+
+select*from jyp_member where jyp_no in (select jyp_no from ws_member where ws_no=29);
+  
+  
+  
+  
+  
+  
+  
+  
+  

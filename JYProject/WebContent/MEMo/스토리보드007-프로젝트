@@ -1,0 +1,37 @@
+ㅁ 프로젝트 홈에서 
+분류하기 (아코디언으로 ) : 내가 속한 프로젝트(관리자권한인 프로젝트, 일반멤버인 프로젝트 분류할가?) , 다른 프로젝트
+->이건 시간 날때 
+
+
+1. 내가 속한 프로젝트(관리자)
+list.jyp_no == session.jyp_no 같으면 
+
+select*from jyp_project where p_no in (select p_no from p_member where ws_no=1 and jyp_no =6 and p_access = 1)   order by p_no desc
+
+2. 내가 속한 프로젝트(멤버)
+select*from jyp_project where p_no in (select p_no from p_member where ws_no=1 and jyp_no =6 and p_access = 2)  order by p_no desc
+
+3. 그 외 프로젝트 
+select*from jyp_project where p_no  in
+ ( select p_no from p_member where ws_no=1 and jyp_no !=6 and jyp_no !=0) and jyp_no !=6 order by p_no desc
+
+
+
+ㅁ 색깔넣기
+ 1:상태없음(기본설정),  (색깔 없음)
+ 2:계획됨, 개나리 #ffb024;
+ 3: 진행중, 연두 #62c276;
+ 4: 완료됨, 파랑   : #27b6ba; 
+ 5:보류,   회색   #D8D8D8
+ 6:취소   (색깔 없음)
+
+
+
+
+
+
+
+
+
+
+

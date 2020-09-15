@@ -1,0 +1,146 @@
+
+<<주소록 페이징하기>>
+------------------------------------------------------
+ㅁ DAO 
+//데이터 뽑아오기
+//select*from ws_member where ws_no=1 ; 
+
+
+//전체 리스트의 갯수
+// select count(*) from ws_member where ws_no=1 ;
+
+
+// 1번 버튼 누르면 최신 데이터 0번째 10개 가져오기 
+// select*from jstlitem order by ino desc limit ?,10 
+// select*from ws_member order by ws_pno desc limit ?,10
+////// ws_pno->필드명 추가하고 dao 짜기 
+
+
+-------------------------------------------------------
+ㅁ 액션 
+	private int pageTotal;// 전체 게시판의 갯수 (글의 갯수) 12
+	private int onepageLimit;// 한 페이지당 보여줄 레코드 수 - 10 
+	private int pageAll;// 하단 index의 갯수 12/10 : 2//
+	private int pstartNo;// db에서 가져올 번호 (1번 버튼시 0, 2번버튼 10 )
+	private int bottomList;// 하단페이지네비게이션(10) 
+	private int bottom_current;// 하단페이지네이 - 현재페이지 네비번호
+	private int bottom_start;// 하단페이지네비 - 현재페이지기준 - 시작페이지 네비번호
+	private int bottom_end;// 하단페이지네비 - 현재페이지기준 - 끝페이지 네비번호
+	ArrayList<JSTLItem_DTO> list;
+
+
+
+select jm.*
+from jyp_member jm join ws_member wm
+on jm.jyp_no = wm.jyp_no
+group by jyp_no
+having jm.jyp_no in (select jyp_no from ws_member where ws_no=1)  
+order by wm.ws_Mdate asc limit 0,10
+
+select jm.*
+from jyp_member jm join ws_member wm
+on jm.jyp_no = wm.jyp_no
+where jm.jyp_no in (select jyp_no from ws_member where ws_no=1)  
+order by wm.ws_Mdate asc limit 0,10
+
+
+select*
+from jyp_member 
+where jyp_no in (select jyp_no from ws_member where ws_no=1)  
+order by ws_Mdate asc limit 0,10
+
+
+
+mysql> select*from ws_member where ws_no= 1 order by ws_Mdate asc limit 0,10
+    -> ;
++-------+--------+---------------------+---------------+
+| ws_no | jyp_no | ws_Mdate            | ws_Mip        |
++-------+--------+---------------------+---------------+
+|     1 |      4 | 2020-08-05 12:02:17 | 192.168.3.103 |
+|     1 |      6 | 2020-08-06 12:20:48 | 192.168.3.107 |
+|     1 |      8 | 2020-08-07 12:34:12 | 192.168.3.111 |
+|     1 |      9 | 2020-08-09 15:40:47 | 192.168.3.109 |
+|     1 |      3 | 2020-08-09 15:40:59 | 192.168.3.103 |
++-------+--------+---------------------+---------------+
+
+
+@@@ 주소록 페이징 
+////*********************************해당 워크스페이스에 먼저 가입한 멤버 순으로 출력 
+select jm.*, wm.ws_Mdate 
+from jyp_member jm join ws_member wm
+on jm.jyp_no = wm.jyp_no
+where wm.ws_no=1
+group by wm.jyp_no
+having jm.jyp_no in (select jyp_no from ws_member)  
+order by wm.ws_Mdate asc limit 0,10
+////*********************************
+
+
+@@ 워크스페이스리스트 페이징  - 먼저 가입한 워크스페이스 순으로 출력 
+select ws.*, wm.ws_Mdate 
+from jyp_workspace ws join ws_member wm
+on ws.ws_no = wm.ws_no
+where wm.jyp_no=6
+group by ws.ws_no
+having ws.ws_no in (select ws_no from ws_member )  
+order by wm.ws_Mdate asc limit 0,10
+
+
+@@ 초대리스트 페이징  - 먼저 초대받은 리스트 순으로 출력 (초대받은 사람의 기준-get_email ) 
+select *
+from ws_invitation
+where get_email in (select jyp_email from jyp_member where jyp_email = '44@44')  
+and ass_status='n' order by acc_date asc limit 0,10
+
+
+
+Database changed
+MariaDB [joooo1234]> select*from jyp_member;
++--------+---------------------+----------+----------+--------------------------                                                                             ----+--------+------------+---------------------+----------------+------+-------                                                                             ---+
+| jyp_no | jyp_email           | jyp_name | jyp_pass | jyp_tel                                                                                                   | gender | birth      | jyp_date            | jyp_ip         | dept | positi                                                                             on |
++--------+---------------------+----------+----------+--------------------------                                                                             ----+--------+------------+---------------------+----------------+------+-------                                                                             ---+
+|      1 | joooo1234@naver.com | ì£¼ì—°     | wn1234   | 01011112222                                                                                               | ì—¬ìž   | 1995-09-07 | 2020-07-21 21:33:19 | 203.245.44.103 | -    | -                                                                                     |
+|      2 | aa@naver.com        | AA       | 1212     | 01012123434                                                                                               | ë‚¨ìž   | 1990-04-02 | 2020-07-22 00:51:59 | 203.245.44.103 | -    | -                                                                                     |
+|      4 | 1                   | 1        | 1        | 1111111111111111111111111                                                                             111 | ì—¬ìž   | 2020-07-18 | 2020-07-22 18:32:12 | 203.245.44.103 | -    | -                                                                                     |
+|      5 | 1@naver.com         | 1        | 1        | 1                                                                                                         | ì—¬ìž   | 2020-07-31 | 2020-07-22 18:32:42 | 203.245.44.103 | -    | -                                                                                     |
+|      6 | alex@               | alex     | 1        | 01020093214                                                                                               | ë‚¨ìž   | 2019-12-31 | 2020-07-22 21:59:38 | 203.245.44.103 | -    | -                                                                                     |
+|      7 | alex1@              | alex     | 1        | 3212331323                                                                                                | ë‚¨ìž   | 2019-12-31 | 2020-07-23 10:35:23 | 203.245.44.103 | -    | -                                                                                     |
+|      8 | alex@1              | alex     | 1        | 23132131                                                                                                  | ë‚¨ìž   | 2020-01-01 | 2020-07-24 18:19:34 | 203.245.44.103 | -    | -                                                                                     |
+|      9 | aaa@naver.com       | ì—ì
+                                    |     10 | bb@naver.com        | ã…Žã…Ž                                                                                  | 1212b    | 11                           | ì—¬ìž   | 1992-01-02 | 2020-07-30 23                                                                             :47:19 | 203.245.44.103 | -    | -        |
+|     11 | ccc@naver.com       | ì”¨       | 1212c    | 010101010                                                                                                 | ë‚¨ìž   | 1990-08-19 | 2020-08-07 02:45:29 | 203.245.44.103 | -    | -                                                                                     |
+|     12 | ddd@naver.com       | ë””       | 1212d    | 01032145942                                                                                               | ì—¬ìž   | 1994-09-19 | 2020-08-10 00:36:06 | 203.245.44.103 | -    | -                                                                                     |
++--------+---------------------+----------+----------+--------------------------                                                                             ----+--------+------------+---------------------+----------------+------+-------                                                                             ---+
+11 rows in set (0.00 sec)
+
+MariaDB [joooo1234]> set chracther set euckr;
+ERROR 1193 (HY000): Unknown system variable 'chracther'
+MariaDB [joooo1234]> set chracter set euckr;
+ERROR 1193 (HY000): Unknown system variable 'chracter'
+MariaDB [joooo1234]> set character set euckr;
+Query OK, 0 rows affected (0.00 sec)
+
+MariaDB [joooo1234]> select*from jyp_member;
++--------+---------------------+----------+----------+--------------------------                                                                             ----+--------+------------+---------------------+----------------+------+-------                                                                             ---+
+| jyp_no | jyp_email           | jyp_name | jyp_pass | jyp_tel                                                                                                   | gender | birth      | jyp_date            | jyp_ip         | dept | positi                                                                             on |
++--------+---------------------+----------+----------+--------------------------                                                                             ----+--------+------------+---------------------+----------------+------+-------                                                                             ---+
+|      1 | joooo1234@naver.com | ÁÖ¿¬        | wn1234   | 01011112222                                                                                               | ¿©ÀÚ       | 1995-09-07 | 2020-07-21 21:33:19 | 203.245.44.103 | -    |                                                                              -        |
+|      2 | aa@naver.com        | AA       | 1212     | 01012123434                                                                                               | ³²ÀÚ       | 1990-04-02 | 2020-07-22 00:51:59 | 203.245.44.103 | -    | -                                                                                     |
+|      4 | 1                   | 1        | 1        | 1111111111111111111111111                                                                             111 | ¿©ÀÚ       | 2020-07-18 | 2020-07-22 18:32:12 | 203.245.44.103 | -    | -                                                                                     |
+|      5 | 1@naver.com         | 1        | 1        | 1                                                                                                         | ¿©ÀÚ       | 2020-07-31 | 2020-07-22 18:32:42 | 203.245.44.103 | -    | -                                                                                     |
+|      6 | alex@               | alex     | 1        | 01020093214                                                                                               | ³²ÀÚ       | 2019-12-31 | 2020-07-22 21:59:38 | 203.245.44.103 | -    | -                                                                                     |
+|      7 | alex1@              | alex     | 1        | 3212331323                                                                                                | ³²ÀÚ       | 2019-12-31 | 2020-07-23 10:35:23 | 203.245.44.103 | -    | -                                                                                     |
+|      8 | alex@1              | alex     | 1        | 23132131                                                                                                  | ³²ÀÚ       | 2020-01-01 | 2020-07-24 18:19:34 | 203.245.44.103 | -    | -                                                                                     |
+|      9 | aaa@naver.com       | ¿¡ÀÌa        | 1212a    | 01011111111                                                                                               | ³²ÀÚ       | 1990-09-09 | 2020-07-27 00:16:40 | 203.245.44.103 | -                                                                                 | -        |
+|     10 | bb@naver.com        | ¤¾¤¾         | 1212b    | 11                                                                                                        | ¿©ÀÚ       | 1992-01-02 | 2020-07-30 23:47:19 | 203.245.44.103 | -                                                                                 | -        |
+|     11 | ccc@naver.com       | ¾¾         | 1212c    | 010101010                                                                                                 | ³²ÀÚ       | 1990-08-19 | 2020-08-07 02:45:29 | 203.245.44.103 | -    |                                                                              -        |
+|     12 | ddd@naver.com       | µð         | 1212d    | 01032145942                                                                                               | ¿©ÀÚ       | 1994-09-19 | 2020-08-10 00:36:06 | 203.245.44.103 | -    |                                                                              -        |
++--------+---------------------+----------+----------+--------------------------                                                                             ----+--------+------------+---------------------+----------------+------+-------                                                                             ---+
+
+
+
+
+
+
+
+

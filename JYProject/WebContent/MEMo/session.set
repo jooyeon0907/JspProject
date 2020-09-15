@@ -1,0 +1,32 @@
+<< session에 저장되는 데이터 >>
+
+ㅁ MLogin.java 
+			session.setAttribute("jyp_email", request.getParameter("jyp_email"));
+			session.setAttribute("jyp_pass", request.getParameter("jyp_pass"));
+			session.setAttribute("jyp_no", dao.userinfo(dto).getJyp_no());//회원번호 뽑아오기
+			session.setAttribute("jyp_ip", dao.userinfo(dto).getJyp_ip()); //ip
+			session.setAttribute("jyp_ip", dao.userinfo(dto).getJyp_profile()); //프로필사진
+ㅁ
+			
+ㅁ  WList.java			
+session.setAttribute("p_no", p_no);}
+
+ㅁ WS_Home.java
+		session.setAttribute("ws_no",ws_no);
+		session.setAttribute("ws_name", ws_name);
+
+ㅁ WS_List.java
+session.setAttribute("ws_list", ws_list);
+
+
+ㅁ WEdit.java
+session.setAttribute("jyp_profile", dao.userinfo(dto).getJyp_profile()); //변경한 프로필사진 
+
+
+
+
+
+<<path>>
+MEdit.java
+WAdd.java
+WEdit.java

@@ -1,0 +1,47 @@
+ㅁ. 업무리스트 삭제하기   (dao 세개로 나누기 - 관리자권한체크, 작성자체크, 삭제 )  // OO
+-  1.해당 프로젝트의 관리자이거나(p_member의 p_access가 1이라면 관리자권한)
+  	 업무리스트 작성자이면 (p_worklist의 wl_ip ) //아니면 회원번호 필드를 넣어줘야할까요?(jyp_no) 
+   
+   @해당 프로젝트의 관리자이거나(p_member의 p_access가 1이라면 관리자권한)
+   	유저의 p_access가 관리자 권한인지(1) 확인 
+ //  select p_access from p_member where ws_no=? and  p_no =? and jyp_no=?
+   select p_access from p_member where  p_no =? and jyp_no=?
+   
+   
+   @ 업무리스트 작성자이면 (p_worklist의 wl_ip )
+   // 유저의 ip와 같은지 확인 
+   select wl_ip from p_worklist where  wl_no=?  
+   --------------------------------------------------------- 
+   @@@통과되면 삭제가능하게 
+   2.해당 업무리스트 삭제됨 (p_worklsit의 wl_no에 해당되는 업무리스트 삭제)
+ 	-업무리스트가 삭제될 때  // 같이 삭제해야되는 것들 (하위 테이블들  : p_work, pw_member, p_coments )
+ 				   -> 이 작업을 한번에 처리하는 방법이 있을까? 일단 삭제하는 sql구문 각 테이블마다 따로 하기
+  //p_worklist
+  delete p_worklist from wl_no=?
+  //p_work
+  delete p_work from work_no=?
+ 
+ 
+ //
+ test1. /XXX
+ select wl.wl_name, work.work_content
+select*from 
+from p_worklist wl join p_work work
+using(wl_no)
+ where wl.wl_no=19 and work.work_no in (select work_no from p_work where wl_no=19) ;
+
+
+//삭제
+
+delete wl,work
+from p_worklist wl join p_work work
+using(wl_no)
+ where wl.wl_no=19 and work.work_no in (select work_no from p_work where wl_no=19) ;
+ 
+ //
+ 
+ ㅁ 업무리스트 이름 수정   // ㅒOOOO 
+ // 작성자이면 수정가능 
+ // 작성자 확인 dao 통과되면 
+ update p_worklist set wl_name =? where ws_no=? 
+ 

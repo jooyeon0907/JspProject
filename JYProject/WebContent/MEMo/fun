@@ -1,0 +1,102 @@
+
+ㅁ 실선
+<li role="presentation" class="divider"></li>
+
+
+.tw-project-settings-pane .divider {
+    margin: 10px 0 20px;
+    width: 100%;
+    height: 1px;
+    background-color: #e6e8ec;
+}
+
+
+
+
+ㅁ Glyphicon
+플러스 	glyphicon glyphicon-plus
+마이너스	glyphicon glyphicon-minus
+엑스	glyphicon glyphicon-remove
+더보기(:)	 glyphicon glyphicon-option-vertical
+설정	glyphicon glyphicon-cog
+공개	glyphicon glyphicon-globe
+비공개 	glyphicon glyphicon-lock
+체크 glyphicon glyphicon-ok
+쓰레기통	glyphicon glyphicon-trash
+홈	glyphicon glyphicon-home
+글쓰기(연필)  glyphicon glyphicon-pencil
+수정 glyphicon glyphicon-edit
+하트 glyphicon glyphicon-heart
+파일 glyphicon glyphicon-file
+시간 glyphicon glyphicon-time
+사진 glyphicon glyphicon-picture
+폰 glyphicon glyphicon-phone
+사람 glyphicon glyphicon-user
+편지봉투 	glyphicon glyphicon-envelope
+메신저 	glyphicon glyphicon-comment
+
+리스트 	glyphicon glyphicon-list-alt  (업무디테일에 사용하자 )
+종	glyphicon glyphicon-bell
+확성기 glyphicon glyphicon-bullhorn
+
+열린폴더 	glyphicon glyphicon-folder-open
+
+///
+@@@세로 스크롤바
+<style>
+.height_scroll{
+ height:800px; 
+ overflow-x:hidden; 
+ overflow-y:auto; 
+}
+</style>
+
+
+///커서 닿이면 색깔 바뀜 
+onmouseover="this.style.backgroundColor='#9FB6FF'" onmouseout="this.style.backgroundColor='red'"
+
+//////원형
+style=" width: 60px; height: 60px; font-weight: bold; border-radius: 50%; 
+    			background-color: #A9F5F2; color: #FFFFFF; 
+    			font-size: 18px; text-align: center; line-height: 62px;"
+
+////
+스크롤바
+style="max-height: 300px;height: auto; overflow-x: hidden; overflow-y: auto;"
+
+
+
+.container.myconatiner {
+    width: auto;
+    height: 100%;
+    margin-top: 4%;
+    margin-left: 3.7%;
+   background-color: #F2F2F2;
+   
+   
+
+
+//다중 delete
+/////delete 
+
+delete ws,wm,pro,pm,wl,work,pwm 
+from jyp_workspace ws 
+inner join ws_member wm
+inner join jyp_project pro
+inner join p_member pm
+inner join p_worklist wl
+inner join p_work work
+inner join pw_member pwm
+inner join jyp_member jm 
+where ws.ws_no=10
+and jm.jyp_email='44@44' and jm.jyp_pass='44';
+
+//확인해보기
+select*from jyp_workspace  where ws_no=10;
+select*from ws_member   where ws_no=10;
+select*from jyp_project   where ws_no=10;
+select*from p_member where ws_no=10;
+select*from p_worklist   where ws_no=10;
+select*from p_work where ws_no=10;
+select*from pw_member   where ws_no=10;
+///

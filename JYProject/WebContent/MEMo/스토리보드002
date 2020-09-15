@@ -1,0 +1,307 @@
+
+워크스페이스 소속 멤버 : jyp_no int not null   ########### 필드명을 새로 짓는 것보다 일치시키는게 나을까?? 
+
+현업에서는 워크스페이스를 어떤식으로 처리하는지?  (이것도 테이블로 뺴는지? 아님 데이터베이스? ) 
+6666
+<<스토리보드>>
+
+ㅁ 첫메인페이지 (미정) index
+메뉴  : 로그인, 가입, 설명서
+
+
+-------------------
+ㅁ회원가입
+아이디중복체크기능  넣기
+-----------------------------------
+ㅁ 로그인화면 
+상단바 메뉴 : 로그인, 비번/아이디 찾기(아직 X) ,가입  
+
+------------------------------------
+ㅁ 로그인하고나서 
+@Action(jyp_member - 회원정보) login.member
+-로그인하기
+session 저장시킬 데이터 :  jyp_email, jyp_pass, jyp_no, jyp_ip
+
+@Action (jyp_workspace-  workspace 정보) login2.member
+-로그인된 회원이 소속된 워크스페이스가 있는지 확인하기 
+select count(*) from jyp_workspace where jyp_no = 로그인되어있는 회원번호
+return값>0이면 소속된 워크스페이스가 있음. 
+
+1. 소속된 워크스페이스가 있다면  워크스페이스 기본화면 페이지로(알림페이지부터 뜸)
+	-> 소속된 워크스페이스가 여러 개 있다면 ws_no 작은 번호로 먼저 띄움
+	  select ws_no from jyp_workspace order by asc where jyp_no =? 
+2. 소속된 워크스페이스가 없다면 워크스페이스 생성페이지 /workspace/ws_add.jsp
+	-> 생성하고 난 후 생성완료 알림창 띄우고 워크스페이스 기본화면 페이지로(알림페이지부터 뜸)
+-----------------------------------------------
+ㅁ 워크스페이스 생성 페이지 	ws_add.jsp
+워크스페이스 이름 작성후 만들기 버튼  -> 생성된 워크스페이스 페이지로 이동 
+
+@Action (jyp_workspace-  workspace 정보 )  ws_add.work
+- 워크스페이스 생성하기 
+ws_no 번호 자동증가
+WS_name(워크스페이스 이름 )  request 받아서 넣기 
+jyp_no (워크스페이스를 생성한 회원의 번호(관리자로됨) )  session에 저장된 jyp_no 넣기
+ws_ip - session에 저장된 jyp_ip 넣기  
+WS_del(워크스페이스 삭제여부 default 'n')
+  -> 삭제 누르면 'y'로 바뀌고 7일 뒤에 삭제가 됨
+  -> 복원하려면 삭제 취소를 눌러서 'n'으로 바뀌게 하기  
+ --생성 후 워크스페이스멤버 추가 Action으로 읻ㅇ 
+  
+ @Action (ws_member)- 워크스페이스 멤버 
+	워크스페이스 번호(ws_no int not null)
+	워크스페이스에 소속된 회원 번호(jyp_no int not null)
+	워크스페이스에 소속된 날짜 (ws_Mdate datetime not null CURRENT_TIMESTAMP)
+	워크스페이스에 소속된 멤버 아이피 (ws_Mip varchar(100) not null) 
+  
+ 
+ --------------------------------------
+ ㅁ 워크스페이스 리스트/ 초대목록  ws_list.jsp
+ @SQL - 유저가 속한 워크스페이스의 이름과 생성날짜  , 회원번호 
+ select w.*
+ from jyp_workspace w join  ws_member wm
+ where w.ws_admin = wm.jyp_no and wm.jyp_no=4
+ group by w.ws_no;
+ 
+ order by w.ws_date;
+
+ 
+ @WS_List 로 넘어옴 
+ - 스페이스 정보 저장해두기  
+   
+------------------------------------
+ㅁ 워크스페이스 기본화면 페이지 ws_home.jsp
+- 워크스페이스 번호에 해당되는 공간으로  . ..???
+///
+@Action 내가 소속한 워크스페이스 정보 list 
+
+ㅁ ws_list
+테이블 만들기 - ws_name ,  ws_admin의 이메일  , ws_date 
+@ ws_admin의 이메일   sql  XXXXX 
+1. 내가 속한 ws_no
+-> select ws_no from ws_member where jyp_no = 3
+
+2. ws_no의 ws_admin 번호 ##
+-> select ws_admin from jyp_workspace where  ws_no = (select ws_no from ws_member where jyp_no = 3);
+ 
+3. ws_admin의 jyp_email ## 
+-> select jyp_email from jyp_member where jyp_no=3;
+
+//////////////////////////
+@WS_Home
+session에 저장할 데이터
+ws_no (해당번호의 워크스페이스 입장)
+ws_name (워크스페이스 상단바에 입력)
+
+-----------------------------------------
+
+ㅁ 워크스페이스 기본화면 페이지  ws_home.jsp
+상단바 메뉴 : 검색, 최근메신저, 워크스페이스 설정, 프로필
+왼쪽 메인 메뉴바 : 
+1.알림(업무, 피드백)
+2.전체개요(업무, 캘린더, 타임라인)
+3. 프로젝트 – 전체프로젝트보기  ##
+4. 멤버 (주소록) 
+5. 메신저 
+
+--------------------------------------------------
+ㅁ 3. 프로젝트 누르면  
+ㅁ 프로젝트 리스트 
+@Action(해당 워크스페이스에 진행중인 프로젝트 리스트 뽑아오기 )/pro_list.pro
+select*from jyp_project where ws_no = ? (현재 워크스페이스 번호 )
+1. 프로젝트가 없다면 
+	-화면에 '현재 진행중인 프로젝트가 없습니다' 
+2. 프로젝트가 있다면 
+	- 
+
+
+
+
+
+-----------------------------------
+
+ㅁ 프로젝트 선택 (get으로 보내기 p_no)
+
+@Action ( 업무리스트 뽑기 )p_no에 해당하는 업무리스트들 
+-> 프로젝트 페이지로  (업무리스트 뽑아져있음 ) 
+
+ㅁ 업무리스트 추가하기 누르면
+
+
+----------------------------
+ㅁ 멤버초대 (???)
+ 유저가 
+ 이메일로 초대하기 누르면 
+ @Action 
+ - 입력한 이메일이 jyp_member에 있는 유저인지 확인 
+ 
+ @Action 멤버테이블에 추가하기 (해당하는 유저가 있다면 )
+ -  (초대수락여부 필드명 추가해서 default 값  'n'으로 ) OO
+->>> 이미 초대했던 회원이면 '이미 초대메세지를 보낸 회원입니다' 알림창 /////####해야됨 
+->select count(*) ws_invitation where ws_no=? and jyp_email =? 
+	->ws_member에 초대하려는 ws의 ws_no에 초대하려는 회원이 있는지 확인 
+  or 초대리스트 테이블 따로 만들기  -> 초대 수락되면 멤버테이블에 추가되는 방식  ## OO
+ 
+ 
+ //
+** 초대받은 유저가 로그인했을때 
+ @Action 
+ - 멤버테이블에 유저의 아이디로 초대된 레코드가 있다면 
+ 알림창 리스트에 띄워놓기 . 초대하기 버튼 누르면 (초대수락여부 'y'로 )  멤버테이블에 추가됨 . 
+ 거절하기 누르면 레코드 삭제됨 . 
+  
+ 초대하고 나서 7일 지나면 삭제됨 (초대리스트 테이블에 초대한 날짜 설정)  
+  
+
+**초대받은 회원 
+-> 거절버튼 누르면 해당 데이터 삭제 () //걍 바로 삭제해버리기 ??? 
+-> 수락버튼 누르면 해당 
+		->워크스페이스 멤버에 추가됨    
+		-> ass_satatus = 'y'로 바꿔주기   // update ws_invitation set ass_status =?  where invi_no=?
+
+
+------------------------
+ㅁ 알림카테고리 기능  (알림 등록일로부터 7일뒤 자동삭제) - 삭제 ? 감추기?
+- 초대 알림 
+- 업무 알림 
+- 미리알림 알림
+- 마감일 Dday 
+- 시작일  Dday
+- 
+
+
+---------------------------------------
+ ㅁ 프로젝트 멤버추가
+ 1. 워크스페이스회원검색  O
+ 2. 프로젝트 멤버에 추가하기  (p_no 파라미터값 , p_access -> 관리자추가에서 했으면 1, 팀원에 햇으면2)
+ //	inserto into p_member (ws_no,p_no,jyp_no,p_access,p_Mip) values (?,?,?,?,?)
+ // prameter : P_Member_DTO
+ // return : int 	
+ 	
+ 
+ ㅁ 업무 배정하기 (멤버)
+ 1. 프로젝트멤버검색
+ // select*from jyp_member where jyp_no in (select jyp_no from p_member where p_no=?)
+ // parameter : JYP_Project_DTO
+ //return : 	JYP_Member_DTO 
+
+2. 업무 배정하기 
+	// insert into pw_member (ws_no, p_no, wl_no, work_no, jyp_no,jyp_ip) values (?,?,?,?,?,?)
+	// parameter : PW_Member_DTO
+	// return : int 
+ㅁ 업무 확인한 멤버  ##아니면 코멘트 달기로 대체? 
+
+-> 업무 상세보기(work_detail) 들어가면 해당 유저의 이름이 남겨짐 (jyp_memeber_dao에서 유저정보빼기 dao로 이름 빼옴  )
+-> 단 ,이미 
+
+
+
+
+ㅁ 프로젝트 멤버리스트 -p_memList () 
+- 프로젝트들어가서 상단부분에 프로젝트멤버리스트 드롭다운
+ㅁ 프로젝트 상태 리스트
+ // select*from jyp_project where p_status =?
+ // parameter :  JYP_Project_DTO   (select에서 선택한 value값 dto에  넣기) 
+ // return : ArralyList<JYP_Project_DTO>
+->선택한 상태의 프로젝트 리스트 뽑기
+
+
+ㅁ ws초대리스트 Dday삭제 
+	// select date_add( (select acc_date from ws_invitation) , INTERVAL 7 DAY)
+	// parameter : X
+	// return : String[]
+ -> 초대요청 보낸일로부터 7일째되는 날 삭제됨. 
+-> 리턴값이 현재날짜보다 같거나 작으면 삭제시키기 (워크스페이스 입장 전에 action처리)
+
+
+ㅁ ws초대 중복검사 
+	//select count(*) from ws_invitation where jyp_email =? and ws_no=? 
+	// parameter : WS_Invitation_DTO
+	// return : int
+-> 초대리스트에 초대하려는 멤버의 jyp_email이 해당 워크스페이스의 ws_no에  초대되어있다면 실행 X, 중복알림창 띄우기
+-> return값이 0보다 크면 중복
+-> 중복된 초대가 없다면 초대하기 Action으로 넘어감 
+
+ㅁ ws초대 거절 버튼 누르면 삭제 
+- 삭제 dao(만들어져있음 ) 
+
+
+
+
+
+
+
+
+
+
+
+
+ㅁ 파일 리스트 모아보기(프로젝트의 업무, 대화에서 업로드한 파일들 )  - upload, paging
+	// select*from p_work where p_no =?  랑  대화에서 한 것도 따로 dao 만들어서 한 곳의 action에서 처리해줌 
+	// paramater : 
+	// return :  ArrayList<>
+	-> 파일, 업로드날짜, 작성자, 작성한 위치(업무리스트(wl_no 뽑은걸로 정보 뽑기)>업무(work_content))
+-> 해당 프로젝트에 업로드한 파일들 리스트로 뽑음
+
+
+
+
+///// 알림페이지에서
+@알림페이지 만들어야함  (notice)
+-
+
+
+
+
+------------------------------------
+
+
+
+/////////누수////////
+@WS_MEMBER 
+ws_no 누수 
+
+
+@WAdd
+미라일림 추가부분에서
+데이터도 제대로 받아지고, dao test 할땐느 잘되는데 왜 디비에 저장이 안되지 ?
+
+
+///path 붙여둔곳///
+WAdd.java
+WEdit.java
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

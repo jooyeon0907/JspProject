@@ -1,0 +1,87 @@
+**p_work테이블에 필드명 추가하기
+업무완료여부 
+work_com char(5) not null default 'n'
+
+alter table p_work
+add work_com char(5) not null default 'n'
+
+해당 업무 work_com이 n이면 체크박스 체크안되어있게,
+ work_com이 y이면 체크박스가 체크되어짐.
+ 
+ ※바로바로 반영하려면 ajax를 이용해야될듯하다 
+-----------------------------------------------------
+**pw_member테이블에 필드명 추가하기
+업무확인여부 work_check char(5) not null default 'n'
+-> 담당된 업무멤버가 해당 업무 클릭시 확인한 흔적이 남음  default 값 n이 y로 바뀜 
+
+
+업무 상세보기 클릭했을ㄷ때 
+업무detail 액션에서 처리하기.
+해당업무의 work_check가 n이라면 y로 바꾸기 
+
+//
+detail view에는 (jsp)
+work_check가 y인 멤버들 출력하기.  
+
+
+
+select pwm.*, jm.jyp_name 
+from pw_member pwm join jyp_member jm  
+on pwm.jyp_no = jm.jyp_no 
+where pwm.work_no=171 and pwm.jyp_no = 4
+
+
+
+
+alter table pw_member
+add work_check char(5) not null default 'n'
+////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+MariaDB [joooo1234]> select*from jyp_member;
++--------+---------------------+----------+----------+--------------------------                                                                             ----+--------+------------+---------------------+----------------+------+-------                                                                             ---+-------------+
+| jyp_no | jyp_email           | jyp_name | jyp_pass | jyp_tel                                                                                                   | gender | birth      | jyp_date            | jyp_ip         | dept | positi                                                                             on | jyp_profile |
++--------+---------------------+----------+----------+--------------------------                                                                             ----+--------+------------+---------------------+----------------+------+-------                                                                             ---+-------------+
+|      1 | joooo1234@naver.com | ÁÖ¿¬        | wn1234   | 01011112222                                                                                               | ¿©ÀÚ       | 1995-09-07 | 2020-07-21 21:33:19 | 203.245.44.103 | -    |                                                                              -        | noImg.png   |
+|      2 | aa@naver.com        | AA       | 1212     | 01012123434                                                                                               | ³²ÀÚ       | 1990-04-02 | 2020-07-22 00:51:59 | 203.245.44.103 | -    | -                                                                                     | noImg.png   |
+|      4 | 1                   | 1        | 1        | 1111111111111111111111111                                                                             111 | ¿©ÀÚ       | 2020-07-18 | 2020-07-22 18:32:12 | 203.245.44.103 | -    | -                                                                                     | noImg.png   |
+|      5 | 1@naver.com         | 1        | 1        | 1                                                                                                         | ¿©ÀÚ       | 2020-07-31 | 2020-07-22 18:32:42 | 203.245.44.103 | -    | -                                                                                     | noImg.png   |
+|      6 | alex@               | alex     | 1        | 01020093214                                                                                               | ³²ÀÚ       | 2019-12-31 | 2020-07-22 21:59:38 | 203.245.44.103 | -    | -                                                                                     | noImg.png   |
+|      7 | alex1@              | alex     | 1        | 3212331323                                                                                                | ³²ÀÚ       | 2019-12-31 | 2020-07-23 10:35:23 | 203.245.44.103 | -    | -                                                                                     | noImg.png   |
+|      8 | alex@1              | alex     | 1        | 23132131                                                                                                  | ³²ÀÚ       | 2020-01-01 | 2020-07-24 18:19:34 | 203.245.44.103 | -    | -                                                                                     | noImg.png   |
+|      9 | aaa@naver.com       | ¿¡ÀÌa        | 1212a    | 01011111111                                                                                               | ³²ÀÚ       | 1990-09-09 | 2020-07-27 00:16:40 | 203.245.44.103 | -                                                                                 | -        | icon3.png   |
+|     10 | bb@naver.com        | ¤¾¤¾         | 1212b    | 11                                                                                                        | ¿©ÀÚ       | 1992-01-02 | 2020-07-30 23:47:19 | 203.245.44.103 | -                                                                                 | -        | noImg.png   |
+|     11 | ccc@naver.com       | ¾¾         | 1212c    | 010101010                                                                                                 | ³²ÀÚ       | 1990-08-19 | 2020-08-07 02:45:29 | 203.245.44.103 | -    |                                                                              -        | noImg.png   |
+|     12 | ddd@naver.com       | µð         | 1212d    | 01032145942                                                                                               | ¿©ÀÚ       | 1994-09-19 | 2020-08-10 00:36:06 | 203.245.44.103 | -    |                                                                              -        | noImg.png   |
+|     13 | eee@naver.com       | ÁÖ¿¬2       | 1212e    | 01011112222                                                                                               | ³²ÀÚ       | 1989-06-23 | 2020-08-13 12:01:44 | 203.245.44.103 | -    |                                                                              -        | noImg.png   |
++--------+---------------------+----------+----------+--------------------------                                                                             ----+--------+------------+---------------------+----------------+------+-------                                                                             ---+-------------+
+12 rows in set (0.00 sec)
+
+
+
+
+
+
+
+
+////유저가 p_member에 속하지 않는 프로젝트 
+select*from jyp_project where p_no not in (select p_no from p_member where ws_no=1 and jyp_no =9)
+
+ select * from jyp_project where p_no not in
+	 ( select p_no from p_member where jyp_no =4) and ws_no=1 and jyp_no !=4 and jyp_no>0 order by p_no desc
+	 
+	 
+	 
+	  select * from jyp_project where p_no not in
+	 ( select p_no from p_member where jyp_no =4) and ws_no=1 and jyp_no !=4 and jyp_no>0 order by p_no desc
+	 
+
+
+
+
+

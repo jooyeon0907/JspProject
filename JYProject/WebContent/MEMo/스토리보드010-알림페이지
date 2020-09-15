@@ -1,0 +1,224 @@
+<<<<<알림페이지>>>>>   
+
+아코디언으로 분류하기 #### 각각 아코디언에 아작스로 데이터처리해야 되랴나 ..? \
+			#### 일단 [미리 알림, 업무 날짜] 두가지 분류만 해결하자 
+			#### (세로 스크롤달기 )
+[미리 알림]  
+ 미리알림은 그냥 1일동안만 설정하면 될듯 (2틀간 유지 ) 
+ 	-> 설정한 미리알림날짜가 dday일때 
+ 	<div>
+ 		<div class="row"> <class="col-sm-~~> <sapn>종 이모티콘</span></>  <>work_name 업무에 대해 알립니다. </div></>
+ 		<div class="row"> <span>열린 폴더 이모티콘</span> p_name / wl_name </div>
+ 	</div>
+ 	
+ //1.미리알림 날짜가 오늘로 설정된 업무멤버의 work_no 구하기 
+select work_no from pw_member  where date(now()) = date(work_alarm)  ;
+ 
+ //2.구한 work_no로 정보뽑기 (p_work, pw_member.work_alarm)
+ select w.*, pw.work_alarm
+from p_work w join pw_member pw
+on w.work_no  = pw.work_no 
+where pw.work_no in ( select work_no from pw_member  where date(now()) = date(work_alarm) and ws_no=1)
+ --->>>>출력정보에 p_no,wl_nl,work_no도 포함되어있어서 그 번호로 p_name, wl_name 도 구하면됨 (@Action에서) 
+2-2. 다른 정보들도 같이 뽑기 도전   (OK)
+select w.*, pw.work_alarm, wl.wl_name , pro.p_name
+from p_work w join pw_member pw join p_worklist wl join jyp_project pro
+where pw.work_no = w.work_no
+ and  pw.wl_no = wl.wl_no
+ and  pw.p_no = pro.p_no 
+ and pw.work_no in ( select work_no from pw_member  where date(now()) = date(work_alarm) and ws_no=1)
+--------------------------------------------------------------------------------------------------------
+★★★★#####2-3. 다른 방식으로 +디데이 뽑기 DATEDIFF ( date(work_start), now() ) as dday  ★★★★
+- 1번 워크스페이스에서 pw에 미리알림설정을 해둔 정보 출략(디데이, p_work 모든정보, 미리알림날짜, 업무리스트이름, 프로젝트 이름) 
+select  DATEDIFF ( date(pw.work_alarm), now() ) as Dday  ,w.*, pw.work_alarm, wl.wl_name , pro.p_name
+from p_work w join pw_member pw join p_worklist wl join jyp_project pro
+where pw.work_no = w.work_no
+ and pw.wl_no = wl.wl_no
+ and pw.p_no = pro.p_no 
+ and pw.work_alarm is not null and pw.ws_no = 1 
+ and pw.work_no
+ //////////////////////////
+ +추가옵션+ 내가 속한 pw.work_no들  -> select work_no from pw_member where jyp_no=4; 추가
+ select  DATEDIFF ( date(pw.work_alarm), now() ) as Dday  ,w.*, pw.work_alarm, wl.wl_name , pro.p_name
+from p_work w join pw_member pw join p_worklist wl join jyp_project pro
+where pw.work_no = w.work_no
+ and pw.wl_no = wl.wl_no
+ and pw.p_no = pro.p_no 
+ and pw.work_alarm is not null and pw.ws_no = 1 
+ and pw.work_no in (select work_no from pw_member where jyp_no=4)  ;
+---------------------------------------------------------------------------------------------------	
+ 	
+[업무 날짜 ] - 프로젝트/ 업무 에 시작일과 마감일 설정한 것에 대한 알림 
+ ㅁ 경우의 수 구하기 
+ 경우 1: 시작일  2일 전부터 알림 : p_name 프로젝트 시작 dday일 전 입니다.    
+					/  work_name 업무 시작 dday일 전 입니다.   (2일, 1일 까지만 카운트 다운 )
+경우 2 : 시작일 당일 		  :  p_name 프로젝트  시작일입니다. 
+					/  work_name 업무     시작일입니다.     (1일동안 유지)
+경우 3: 마감일  2일 전부터 알림 : p_name 프로젝트 마감 dday일 전 입니다. 
+					/  work_name 업무 마감 dday일 전 입니다.   (2일, 1일 까지만 카운트 다운 )
+경우 4 : 마감일 당일 		  :  p_name 프로젝트  마감일입니다. 
+					/  work_name 업무     마감일입니다.     (1일동안 유지)
+----->>for문 돌리기 (돌리기 전 조건문  디데이 리턴값이 null이 아니라면///null sql에 거르기 ) 
+ for(i= ddayl i< ; i--){ 
+	 if(dday=0이라면 ){ 시작일/마감일 입니다. }
+	 dday일 전입니다. 출력하고  }//end for 
+
+-1이면 마감일 1일 지났습니다. 
+
+ㅁ sql 구문 구하기 : dday 
+	1-1.  업무/프로젝트의 시작일의 dday 구하기  parameter : ArrayList
+	select DATEDIFF ( date(work_start), now() ) as NAME from p_work where ws_no =1 and work_start is not null ;  //### 해당 워크스페이스 번호 넣어서 
+	
+    1-2. 업무/프로젝트의 마감일의 dday 구하기  parameter : ArrayList 
+    select DATEDIFF ( date(work_end), now() ) as NAME from p_work where ws_no =1  work_end is not null  ;
+ 
+ 	참고 )SELECT DATEDIFF(date('대상일자'), now()) as NAME from ;
+ -> (up) 정보도 같이 껴서 구하기   참조번호 p_no=44 / work_no = 156 
+★★★★★★★★★★★★★★★★ -> 44번 프로젝트의 시작일이 null이 아닌, 디데이날짜와 p_work의 모든정보출력 ★★★★★★★★★★★★★★★★★★★★★★★★
+ 	select *,DATEDIFF ( date(work_start), now() ) as Dday 
+ 	from p_work 
+ 	where p_no=44 and work_start is not null ; 
+ 	===
+ 	==>정보 더 붙이기  (업무시작일/마감일 )★★★★★★★★★★★★★★####
+	select  DATEDIFF ( date(w.work_start), now() ) as start_dday,DATEDIFF ( date(w.work_end), now() ) as end_dday ,w.* , wl.wl_name , pro.p_name
+	from p_work w  join p_worklist wl join jyp_project pro
+	where w.wl_no = wl.wl_no
+	 and  w.p_no = pro.p_no 
+	 and  w.ws_no=1 and w.work_start is not null
+	  +추가옵션+ 내가 속한 pw.work_no들  -> select work_no from pw_member where jyp_no=4; 추가
+	 select  DATEDIFF ( date(w.work_start), now() ) as start_dday,DATEDIFF ( date(w.work_end), now() ) as end_dday ,w.* , wl.wl_name , pro.p_name
+	from p_work w  join p_worklist wl join jyp_project pro
+	where w.wl_no = wl.wl_no
+	 and  w.p_no = pro.p_no 
+	 and  w.ws_no=1 
+	 and w.work_no in (select work_no from pw_member where jyp_no=4 )  ;
+	 
+	 
+	 
+	 
+	 
+	 select  DATEDIFF ( date(pw.work_alarm), now() ) as dday  ,w.*, pw.work_alarm, wl.wl_name , pro.p_name
+from p_work w join pw_member pw join p_worklist wl join jyp_project pro
+where pw.work_no = w.work_no
+ and  pw.wl_no = wl.wl_no
+ and  pw.p_no = pro.p_no 
+ and  pw.work_alarm is not null and pw.ws_no = 1 	
+ 	
+-> 44번 프로젝트의 시작일이 null이 아닌, 디데이날짜와 p_work의 모든정보출력
+
+//프로젝트 마감일/시작일 에 대해
+##########
+ 	select *,DATEDIFF ( date(p_start), now() ) as start_dday, DATEDIFF ( date(p_end), now() ) as end_dday 
+ 	from jyp_project
+ 	where  ws_no=1; 
+  +추가옵션+ 내가 속한 p_no들  -> select p_no from p_member where jyp_no=4;
+ 	select *,DATEDIFF ( date(p_start), now() ) as start_dday, DATEDIFF ( date(p_end), now() ) as end_dday 
+ 	from jyp_project
+ 	where  ws_no=1 and p_no in (select p_no from p_member where jyp_no=4) 
+		<div 프로젝트 날짜 >
+	 		<테이블1>
+	 			
+	 		</테이블>	
+ 		</div>
+ 		-------------------
+ 		>>
+ 		
+ 		
+ 		<div 업무 날짜>
+ 			<테이블2>
+ 			</테이블>
+ 		</div> 		
+ 		
+ 		
+ 		
+ 	//////////////////////////////////
+ 	[업무 배정] 
+ 	1. 업무멤버에 추가되면 추가된 날짜로부터 3일동안 알림 띄움
+	select*from  	
+ 	
+ 	2. 프로젝트멤버에 추가되면 추가된 날짜로부터 3일동안 알림띄움 
+ 	
+ 	
+ 	<span>업무이미지</span> 업무추가한 사람이름     work_name 업무에 회원님을 배정되었씁니다. 
+ 						<//그럼 pw_member테이블에 추가해야 겠따. >> 	
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	//////////////////////////////////	
+ 		
+ 		
+ 		
+ 		
+ 		
+ 		
+ 		
+ 		
+[업무 생성]   XXXXXXXXXXXXXXXXXXXXXxx 안해야지 
+ex) jyp_name님이 p_name을 생성해
+
+		<div 프로젝트 생성 >
+	 		<테이블1>
+	 		</테이블>	
+ 		</div>
+ 		-------------------
+ 		>>
+ 		
+ 		
+ 		<div 업무 생성>
+ 			<테이블2>
+ 			</테이블>
+ 		</div> 	
+
+ [멤버]  - 워크스페이스/ 프로젝트 / 업무에 등록/삭제에 대한 멤버 알림  XXXXXXXXXXXXXXXXXXXX d
+ 		<div  ws_member >
+	 		<테이블1>
+	 			
+	 			
+	 		</테이블>	
+ 		</div>
+ 		-------------------
+ 		>>
+ 		
+ 		
+ 		<div  p_member >
+	 		<테이블2>
+	 		</테이블>	
+ 		</div>
+ 		
+ 		
+ 		<div pw_member>
+ 			<테이블3>
+ 			</테이블>
+ 		</div>
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  

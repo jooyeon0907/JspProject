@@ -1,0 +1,51 @@
+<이전달 >
+month -1 
+if(month==1)이면  year=-1 , month = 12
+
+<다음달>
+month +1 
+if(month==12)이면 year=+1, month = 1 
+
+----------------------------------------------
+1. 캘린더 카테고리 누르면 
+2. calendar_home.cal 
+3. 
+
+
+---------------------------------------------------
+ㅁ 일정채우기
+캘린더에서 date =  year  + month + days 조합해서 데이터에 있는 날짜랑 비교하기 
+work_start <= date <= work_end
+
+
+ㅁ일정뽑기 sql 
+- 조건1: 업무시작일이 (work_start) 빠른 날짜순으로
+- 조건2: 자기가 속해있는 업무 (##일단 보류하고 전체로 조회하기)
+- select*from p_work where ws_no = 1 order by work_start asc  ;
+
+
+select*from p_work where ws_no = 1 and jyp_no!=0 order by ISNULL(work_start) ASC ,work_start asc;
+
+
+select*from p_work where ws_no = 1 and jyp_no!=0 order by ISNULL(work_start) ASC , ISNULL(work_end),work_start asc;
+조회- > 내가 속한 프로젝트 || 공개프로젝트 
+select*from p_work where ws_no = 1 and jyp_no!=0 and  order by ISNULL(work_start) ASC , ISNULL(work_end),work_start asc;
+
+
+
+
+
+
+시작일 -> 마감일이 설정되어있다면 시작~ 로 하고 아니면  시작/
+마감일 -> 시작일이 설정되어있다면  ~마감 로 하고 아니면 /마감 
+
+
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+

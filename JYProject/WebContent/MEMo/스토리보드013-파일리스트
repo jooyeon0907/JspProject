@@ -1,0 +1,59 @@
+파일리스트
+
+<th scope="col">이름</th> <th scope="col">업로드 날짜</th> <th scope="col">작성자</th>
+
+
+
+ select w.*, mem.jyp_name
+	from p_work w join jyp_member mem
+	on w.jyp_no = mem.jyp_no 
+	where w.jyp_no>0 and w.p_no =46 and work_file != 'no.jpg' order by work_date
+
+
+
+ select w.*, mem.jyp_name , wl.wl_name
+	from p_work w join jyp_member mem join p_worklist wl
+	where w.jyp_no = mem.jyp_no 
+		and  w.wl_no = wl.wl_no
+	and   w.jyp_no>0 and w.p_no =46 and w.work_file != 'no.jpg' order by w.work_date
+
+
+---+----------+---------+
+| work_no | ws_no | p_no | wl_no | jyp_no | work_content   | work_start | work_end | work_finish | work_date           | work_ip       | work_file     | work_com | jyp_name | wl_name |
++---------+-------+------+-------+--------+----------------+------------+----------+-------------+---------------------+---------------+---------------+----------+----------+---------+
+|     119 |     1 |   46 |    84 |      6 | dfsdfsdf       | NULL       | NULL     |           1 | 2020-08-10 22:40:58 | 192.168.3.107 | no.jpg        | n        | 에이     | 1111    |
+|     120 |     1 |   46 |    84 |      6 | ㄴㄴㄴ         | NULL       | NULL     |           1 | 2020-08-10 23:09:07 | 192.168.3.107 | no.jpg        | n        | 에이     | 1111    |
+|     134 |     1 |   46 |    84 |      6 | sdsad          | NULL       | NULL     |           1 | 2020-08-11 12:43:08 | 192.168.3.107 | no.jpg        | n        | 에이     | 1111    |
+|     135 |     1 |   46 |    84 |      6 | fgfg           | NULL       | NULL     |           1 | 2020-08-11 12:53:51 | 192.168.3.107 | pos_icon3.png | n        | 에이     | 1111    |
+|     136 |     1 |   46 |    84 |      6 | dggg           | NULL       | NULL     |           1 | 2020-08-11 12:57:50 | 192.168.3.107 | no.jpg        | n        | 에이     | 1111    |
+|     137 |     1 |   46 |    84 |      6 | dddddddddddddd | NULL       | NULL     |           1 | 2020-08-11 13:04:48 | 192.168.3.107 | h1_cgv.png    | n        | 에이     | 1111    |
+|     138 |     1 |   46 |    84 |      6 | ggg            | NULL       | NULL     |           1 | 2020-08-11 13:05:37 | 192.168.3.107 | no.jpg        | n        | 에이     | 1111    |
+|     187 |     1 |   46 |    85 |      6 | ddd            | NULL       | NULL     |           1 | 2020-08-17 12:37:14 | 192.168.3.107 | img101.jpg    | n        | 에이     | 22222   |
+|     188 |     1 |   46 |    85 |      6 | zzz            | NULL       | NULL     |           1 | 2020-08-17 12:47:02 | 192.168.3.107 | APPLE3.jpg    | n        | 에이     | 22222   |
++---------+-------+------+-------+--------+----------------+------------+----------+-------------+---------------------+---------------+---------------+----------+----------+---------+
+9 rows in set (0.00 sec)
+
+mysql>  select w.*, mem.jyp_name , wl.wl_name
+    -> from p_work w join jyp_member mem join p_worklist wl
+    -> where w.jyp_no = mem.jyp_no
+    -> and  w.wl_no = wl.wl_no
+    -> and   w.jyp_no>0 and w.p_no =46 and w.work_file != 'no.jpg' order by w.work_date;
++---------+-------+------+-------+--------+----------------+------------+----------+-------------+---------------------+---------------+---------------+----------+----------+---------+
+| work_no | ws_no | p_no | wl_no | jyp_no | work_content   | work_start | work_end | work_finish | work_date           | work_ip       | work_file     | work_com | jyp_name | wl_name |
++---------+-------+------+-------+--------+----------------+------------+----------+-------------+---------------------+---------------+---------------+----------+----------+---------+
+|     135 |     1 |   46 |    84 |      6 | fgfg           | NULL       | NULL     |           1 | 2020-08-11 12:53:51 | 192.168.3.107 | pos_icon3.png | n        | 에이     | 1111    |
+|     137 |     1 |   46 |    84 |      6 | dddddddddddddd | NULL       | NULL     |           1 | 2020-08-11 13:04:48 | 192.168.3.107 | h1_cgv.png    | n        | 에이     | 1111    |
+|     187 |     1 |   46 |    85 |      6 | ddd            | NULL       | NULL     |           1 | 2020-08-17 12:37:14 | 192.168.3.107 | img101.jpg    | n        | 에이     | 22222   |
+|     188 |     1 |   46 |    85 |      6 | zzz            | NULL       | NULL     |           1 | 2020-08-17 12:47:02 | 192.168.3.107 | APPLE3.jpg    | n        | 에이     | 22222   |
++---------+-------+------+-------+--------+----------------+------------+----------+-------------+---------------------+---------------+---------------+----------+----------+---------+
+4 rows in set (0.01 sec)
+
+mysql>
+
+
+
+
+
+
+
+

@@ -1,0 +1,72 @@
+
+ㅁ프로젝트 삭제하기 
+	-삭제할 수 있는 조건 - ws 관리자, 프로젝트 관리자 권한 (1) 
+	-삭제될 데이터 
+		: 프로젝트 삭제 
+		: 프로젝트 멤버삭제
+		: 프로젝트에 해당되는 업무리스트
+		: 프로젝트에 해당되는 업무삭제
+		: 프로젝트에 해당되는 업무멤버삭제
+	1. 삭제권한 체크
+	유저가 ws관리자인지 체크 - ws_info()로 jyp_no 꺼내오기 
+	유저가 프로젝트 관리자권한이 있는지 체크   - select p_access from p_member where p_no=? and jyp_no = ? 
+	2. 몽땅 삭제	
+delete jyp_project,p_member,p_worklist,p_work,pw_member 
+from jyp_project 
+join p_member
+join p_worklist 
+join p_work 
+join pw_member 
+where jyp_project.p_no = p_member.p_no
+and jyp_project.p_no = p_worklist.p_n
+and jyp_project.p_no = p_work.p_no
+and jyp_project.p_no = pw_member.p_no
+and jyp_project.p_no= 31;
+
+
+////업무리스트 삭제 //// 
+1. 삭제할 수 있는 권한 - 프로젝트 관리자, 업무리스트 작성자 
+
+
+2.
+delete p_worklist,p_work,pw_member 
+from p_worklist 
+join p_work 
+join pw_member 
+where p_worklist.wl_no = p_work.wl_no
+and p_worklist.wl_no = pw_member.wl_no
+and p_worklist.wl_no= 31;
+
+
+///업무 삭제 /// 
+1. 삭제할 수 있는 권한 - 프로젝트 관리자, 업무리스트 작성자 , 업무작성자 
+
+
+2.
+delete p_work,p_work,pw_member 
+from p_worklist 
+join p_work 
+join pw_member 
+where p_work.work_no = pw_member.work_no
+and p_work.work_no= 31;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

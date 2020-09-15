@@ -1,0 +1,227 @@
+<<create table>>
+
+ㅁ jyproject에 가입된 회원정보(jyp_member)
+create table jyp_member(
+ jyp_no int not null auto_increment primary key, 
+ jyp_email varchar(200) not null , 
+ jyp_name varchar(100) not null ,
+ jyp_pass varchar(50) not null  ,
+ jyp_tel varchar(100) not null ,
+ gender char(5) not null, 
+ birth date,
+ jyp_date datetime not null default CURRENT_TIMESTAMP, 
+jyp_ip varchar(100) not null ,
+ dept varchar(50) default '-',
+ position  varchar(50) default '-',
+ d jyp_profile varchar(200) not null default 'noImg.png' 
+)default charset=utf8;
+
+
+
+
+
+//수정 O
+alter table jyp_member
+change jyp_pass jyp_pass varchar(50) not null;
+alter table jyp_member 
+change gender gender char(5) not null;
+alter table jyp_member
+change birth birth date;
+alter table jyp_member
+change jyp_ip jyp_ip varchar(100) not null
+//
+
+
+ㅁ 워크스페이스 정보(jyp_workspace) ##수정 (dto,jsp도 ) 
+create table jyp_workspace(
+ws_no int not null auto_increment primary key,
+ws_name varchar(100) not null,
+jyp_no int not null,
+ws_ip varchar(100) not null,
+ws_date datetime not null default CURRENT_TIMESTAMP
+ws_del char(5) not null default 'n',
+ws_delDday  datetime
+)default charset=utf8;
+
+///수정할부분
+jyp_no -> ws_admin 
+
+alter table jyp_workspace
+change ws_date ws_date datetime not null default CURRENT_TIMESTAMP;
+
+///
+
+
+ㅁ 워크스페이스 멤버(ws_member)
+create table ws_member(
+ws_no int not null,
+jyp_no int not null,
+ws_Mdate datetime not null default CURRENT_TIMESTAMP,
+ws_Mip varchar(100) not null
+)default charset=utf8;
+
+
+ㅁ 프로젝트 정보(jyp_project)
+create table jyp_project(
+p_no int  not null  auto_increment primary key,
+ws_no int not null,
+p_name varchar(50) not null,
+p_info text,
+p_status int not null default 1,
+p_start datetime,
+p_end datetime,
+p_complete datetime,
+p_public char(5) not null,
+p_date datetime not null default CURRENT_TIMESTAMP,
+p_ip varchar(100) not null
+)default charset=utf8;
+
+
+
+ㅁ 프로젝트 멤버 (p_member)
+create table p_member(
+ws_no int not null,
+p_no int not null,
+jyp_no int not null,
+p_access int not null default 2,
+p_Mdate datetime not null default CURRENT_TIMESTAMP,
+p_Mip varchar(100) not null
+)default charset=utf8;
+
+
+
+
+ㅁ 업무리스트 (p_worklist)
+create table p_worklist(
+wl_no int not null auto_increment primary key,
+ws_no int not null,
+p_no int not null,
+jyp_no int not null,
+wl_name varchar(100) not null,
+wl_date datetime not null default CURRENT_TIMESTAMP,
+wl_ip varchar(100) not null
+)default charset=utf8;
+
+
+
+
+ㅁ 업무리스트에서의 업무들(p_work)
+create table p_work(
+work_no int not null auto_increment primary key,
+ws_no int not null,
+p_no int not null,
+wl_no int not null,
+jyp_no int not null,
+work_content text not null,
+work_start date,
+ worl_end date,
+work_alarm datetime,
+work_finish int not null default 1,
+work_date datetime not null default CURRENT_TIMESTAMP,
+work_ip varchar(100) not null
+file varchar(200) default 'no.jpg' ,
+work_com char(5) not null default 'n',
+work_label varchar(50) not null default '#fdfdfd00'
+)default charset=utf8;
+
+
+alter table p_work
+add work_label varchar(50) not null default '#fdfdfd00'
+
+
+
+***dto 수정할 부분
+	 ws_no,
+	  p_no,
+	 wl_no, 
+	 work_no,
+	 jyp_no, ## jyp_no int not null
+	 work_finish;
+	 work_title,
+	 work_content;
+	work_start,
+	 work_end, 
+	 work_alarm;
+     work_writer; ### ->지우기
+     wl_ip varchar(100) not null ## 추가 
+****table 수정할 부분
+mysql> desc p_work
+    -> ;
++--------------+-------------+------+-----+---------+----------------+
+| Field        | Type        | Null | Key | Default | Extra          |
++--------------+-------------+------+-----+---------+----------------+
+| WS_no ##소문자       | int(11)     | NO   |     | 1       |                |
+| P_no   ##소문자| int(11)     | NO   |     | 1       |                |
+| WL_no   ##소문자| int(11)     | NO   |     | 1       |                |
+| work_no      | int(11)     | NO   | PRI | NULL    | auto_increment |
+| work_title   | varchar(20) | NO   |     | NULL    |                |
+| jyp_no       | int(11)     | YES  |     | NULL    |                |
+| work_content | text        | NO   |     | NULL    |                |
+| work_start   | date        | YES  |     | NULL    |                |
+| work_end     | date        | YES  |     | NULL    |                |
+| work_alarm   | date## =>datetime        | YES  |     | NULL    |                |
+| work_finish  | int(11)     | NO   |     | 1       |                |
+| work_writer###  | varchar(50) | NO   |     | NULL    |                |
++--------------+-------------+------+-----+---------+----------------+
+12 rows in set (0.05 sec)
+
+****dao,jsp에도 필드명에 맞게 수정하기 
+
+
+
+
+ㅁ 업무에 달린 코멘트 (p_coments)
+create table p_coments(
+co_no int not null auto_increment primary key,
+ws_no int not null,
+p_no int not null,
+wl_no int not null,
+work_no int not null,
+jyp_no int not null,
+comment varchar(100) not null
+co_date datetime not null default CURRENT_TIMESTAMP,
+co_ip varchar(100) not null,
+co_group int default 0 ,
+co_step int default 0,
+co_indent int default 0 ,
+work_com char(5) not null default 'n'
+)default charset=utf8;
+
+
+
+
+ㅁ 담당된 멤버 (pw_member)
+create table pw_member(
+ws_no int not null,
+p_no  int not null,
+wl_no int not null,
+work_no int not null,
+jyp_no int not null,
+jyp_ip varchar(100) not null
+work_alarm datetime,
+pw_Mdate datetime not null default CURRENT_TIMESTAMP,
+work_check char(5) not null default 'n'
+)default charset=utf8;
+
+
+
+ㅁ 워크스페이스 초대 등록 리스트(ws_invitation)
+  create table ws_invitation(
+  invi_no int not null auto_increment primary key,
+  send_email varchar(100) not null,
+  send_ip varchar(100) not null,
+  get_email varchar(100) not null,
+  get_ip varchar(100) not null,
+  ws_no int not null,
+  ws_name varchar(100) not null,
+  acc_date datetime not null default CURRENT_TIMESTAMP,
+  ass_satatus char(5) not null default 'n'
+  )default charset=utf8;
+  
+  
+  
+  
+  
+  
+  
+  

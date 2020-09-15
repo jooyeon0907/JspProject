@@ -1,0 +1,9 @@
+ㅁ 함꼐하는 업무멤버 (pw_member, jyp_member   (이름 ) ) 
+select pwm.*, jm.jyp_name 
+from pw_member pwm join jyp_member jm 
+on pwm.jyp_no = jm.jyp_no 
+where pwm.work_no=96 and pwm.jyp_no > 0 ;
+
+
+
+

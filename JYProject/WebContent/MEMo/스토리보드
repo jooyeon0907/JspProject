@@ -1,0 +1,47 @@
+<<db준비 >>
+db명 : JYProject 
+
+
+<<table 구조짜기>> 
+
+table -> project 명 
+table 필드명  
+
+/////////////////////////////////////////////////////////////////
+//member
+table : JYP_member 
+table 필드명
+
+
+<<login>> 
+login
+------------------------------------------------------------------------------------
+■ 기본보드   (_ R _ _) 
+■ join+login  (CRUD)  
+
+##2. 관리자측기능분석
+■ 기본보드   (CRUD)  -  업무추가 p25 
+■ join+login  (CRUD) -  db설계시 권한필드(관리자 / 유저)   
+	회원가입	
+	- https://nid.naver.com/user2/V2Join.nhn?	token_sjoin=RgSjb3BNidMtp6y1&chk_all=on&termsService=on&termsPrivacy=on&termsLocation=Y&termsEmail=Y
+		__20200719( 호스팅주소보내주세요!)■ 기본보드   (_ R _ _) 
+■ join+login  (CRUD)  
+
+##2. 관리자측기능분석
+■ 기본보드   (CRUD)  -  업무추가 p25 
+■ join+login  (CRUD) -  db설계시 권한필드(관리자 / 유저)   
+	회원가입	
+	- https://nid.naver.com/user2/V2Join.nhn?	token_sjoin=RgSjb3BNidMtp6y1&chk_all=on&termsService=on&termsPrivacy=on&termsLocation=Y&termsEmail=Y
+		__20200719( 호스팅주소보내주세요!)
+		
+		
+--------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+

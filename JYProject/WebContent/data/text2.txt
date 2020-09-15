@@ -1,0 +1,2 @@
+<h5>BANANA</h5>
+<p><img src="/jsp_ajax/images/BANANA.jpg" alt="바나나"/></p>

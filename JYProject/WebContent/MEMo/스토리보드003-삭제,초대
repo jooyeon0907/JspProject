@@ -1,0 +1,107 @@
+
+ㅁ프로젝트 삭제하기 
+	1. 삭제권한 체크 
+	 -유저가 프로젝트관리자인지 체크 - JYP_P_Member_DAO에서 p_memCheck(P_Member_DTO dto) - 필요한 데이터 p_no,jyp_no
+	 -return값 1: 관리자 , 2: 일반멤버
+	2. 삭제되는 데이터 : jyp_project,p_member,p_worklist,p_work,pw_member 
+delete jyp_project,p_member,p_worklist,p_work,pw_member 
+from jyp_project 
+join p_member
+join p_worklist 
+join p_work 
+join pw_member 
+where jyp_project.p_no = p_member.p_no
+and jyp_project.p_no = p_worklist.p_no
+and jyp_project.p_no = p_work.p_no
+and jyp_project.p_no = pw_member.p_no
+and jyp_project.p_no= 7 
+
+
+
+
+
+
+////업무리스트 삭제 //// 
+1. 삭제할 수 있는 권한 - 프로젝트 관리자, 업무리스트 작성자 
+ 	경우 1: 유저가 프로젝트관리자인지 체크  - JYP_P_Member_DAO에서 p_memCheck(P_Member_DTO dto) - 필요한 데이터 p_no,jyp_no
+ 				 -return값 1: 관리자 , 2: 일반멤버
+	경우 2: 유저가 업무리스트 작성자인지 체크 - public String wl_ip(P_WL_DTO dto)
+			- return 값이 유저의 번호 와 일치하면 삭제가능
+2. 삭제될 데이터  :p_worklist,p_work,pw_member 
+delete p_worklist,p_work,pw_member 
+from p_worklist 
+join p_work 
+join pw_member 
+where p_worklist.wl_no = p_work.wl_no
+and p_worklist.wl_no = pw_member.wl_no
+and p_worklist.wl_no= ?
+
+
+
+
+///업무 삭제 /// 
+1. 삭제할 수 있는 권한 - 프로젝트 관리자, 업무리스트 작성자 , 업무작성자 
+ 	경우 1: 유저가 프로젝트관리자인지 체크  - JYP_P_Member_DAO에서 p_memCheck(P_Member_DTO dto) - 필요한 데이터 p_no,jyp_no
+ 				 -return값 1: 관리자 , 2: 일반멤버
+	경우 2: 유저가 업무 작성자 인지 체크 
+
+2. 삭제되는 데이터 - p_work,pw_member
+delete p_work,p_work,pw_member 
+from p_worklist 
+join p_work 
+join pw_member 
+where p_work.work_no = pw_member.work_no
+and p_work.work_no= ?
+
+
+★★★★★★★★★★★★문제점★★★★★★★★★★★★★★★★★ ㅌㅌㅌㅌㅌXXXXXXXX
+jyp_project,p_worklist,p_work 도 jyp_workspace처럼 생성할때마다 샘플 데이터를 넣어줘야됨 .
+아니면 삭제가 안된다. .. 
+
+★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+
+///////////////////////////////////////////////////////////
+ㅁ 멤버초대하기 
+  -> 멤버 검색해서 초대
+  -> 각 멤버리스트 정보 dao 불러와서 ajax로  일치하는 검색이 있는지 검색함  // 여기까지 했음 
+  -> 초대하기 버튼 누를때 안되는경우 1 : 아이디가 본인일시 - 본인아이디입니다 알림창
+  						  2 : 이미 초대된 아이디일시 - 이미 초대를 보낸 회원입니디다 알림창 
+  						  
+  @ 안되는 경우 dao 짜기 						   
+
+
+
+
+////////////////////////////////////////////////////////////
+ㅁ 알림페이지  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

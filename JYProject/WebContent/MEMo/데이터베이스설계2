@@ -1,0 +1,411 @@
+@@비번찾기는 어떻게 할 것인가??   
+
+
+@@질문
+table table table ??? 
+
+
+★★★★
+/////////////////////////////////////////////////
+<<DB명 >> : joooo1234
+/////////////////////////////////////////////////
+//회원가입할때 등록 
+ㅁ table : jyp_member
+ㅁ table 필드명
+회원 번호 : jyp_no int not null auto_increment primary key
+회원 이메일(필) id로 쓰임 : jyp_email varchar(200) not null 
+회원 닉네임(필) :  jyp_name varchar(100) not null
+회원 비밀번호(필) : jyp_pass varchar(20) not null 
+회원 전화번호(필) : jyp_tel varchar(100) not null
+회원 성별(필) : gender char(2) not null     (m/f) 
+회원 생일 : birth datetime 
+
+//회사명 : company varchar(50)  //여기에 넣지말고 workspace 멤버정보에 넣을까? 
+//부서 : dept varchar(50) 
+//직급 : position varchar(50) 
+
+회원 가입날짜 : jyp_date datetitme  default CURRENT_TIMESTAMP
+회원 아이피 주소 : jyp_ip  varchar(20)  
+//회원권한 : jyp_access varchar(20)  //여기서는 필요없을듯 
+
+**
+소속되어 있는 워크스페이스 : WS_no int  ///소속되었을때 번호가 부여됨
+소속되어 있는 프로젝트    :   P_no int    ///소속되었을때 번호가 부여됨
+※여러 워크스페이스 /프로젝트 에 속해있는 경우라면 어떻게 해야되지?? ///뺴기 
+
+create table jyp_member (
+ jyp_no int not null auto_increment primary key,
+jyp_email varchar(200) not null ,
+jyp_name varchar(100) not null,
+ jyp_pass varchar(20) not null ,
+ jyp_tel varchar(100) not null,
+ gender char(2) not null ,
+birth datetime ,
+ jyp_date datetime  not null default CURRENT_TIMESTAMP,
+jyp_ip  varchar(20) not null,
+  dept varchar(50) ,
+   position varchar(50)
+)default charset=utf8;
+
+
+mysql> desc jyp_member;
++-----------+--------------+------+-----+-------------------+----------------+
+| Field     | Type         | Null | Key | Default           | Extra          |
++-----------+--------------+------+-----+-------------------+----------------+
+| jyp_no    | int(11)      | NO   | PRI | NULL              | auto_increment |
+| jyp_email | varchar(200) | NO   |     | NULL              |                |
+| jyp_name  | varchar(100) | NO   |     | NULL              |                |
+| jyp_pass  | varchar(20)  | NO   |     | NULL              |                |
+| jyp_tel   | varchar(100) | NO   |     | NULL              |                |
+| gender    | char(2)      | NO   |     | NULL              |                |
+| birth     | datetime     | YES  |     | NULL              |                |
+| jyp_date  | datetime     | NO   |     | CURRENT_TIMESTAMP |                |
+| jyp_ip    | varchar(20)  | NO   |     | NULL              |                |
+| dept      | varchar(50)  | YES  |     | -                 |                |
+| position  | varchar(50)  | YES  |     | -                 |                |
++-----------+--------------+------+-----+-------------------+----------------+
+11 rows in set (0.01 sec)
+
+
+
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+- 워크스페이스는 회사,부서,팀  혹은 개인이 될 수 있다
+- 프로젝트의 기반으로 각각의 프로젝트를 만들어 관리
+- 업무를 진행하는 공간
+-------------------------------------------------
+// workspace  정보 
+ㅁ 테이블명 : jyp_workspace 
+ㅁ 테이블 필드명 : 
+
+워크스페이스 번호  : WS_no int auto_increment primary key 
+//워크스페이스에 초대가 되면 워크스페이스 번호가 부여되어 해당 멤버인지 판단할 수 있음 
+워크스페이스 이름 : WS_name varchar(20) not null  //입력받은 이름 넣기
+//워크스페이스 관리자 : WS_admin not null  
+※※※ 워크스페이스 관리자는 1명만 설정가능하게 ? 아니면 공동책임도 가능?  ####1명만 
+워크스페이스 소속 멤버 : jyp_no int not null   ########### 필드명을 새로 짓는 것보다 일치시키는게 나을까?? 
+워크스페이스 관리자권한: WS_admin int not null default 1 (일반멤버는 1 : , 관리자는 2  : CRUD)  //워크스페이스 생성할때 2로 등록하기 
+워크스페이스 삭제여부 : WS_del char not null default 'n' 
+// -> y or n y이면 삭제모드로 되어 7일 뒤에 삭제됨  
+//복원하려면 삭제취소 눌러서 n으로 바뀌게 하기
+
+create table jyp_workspace(
+ ws_no int not null auto_increment primary key ,
+ ws_name varchar(20) not null, #### 더 길게 바꾸기 
+ jyp_no int not null,     ---- 외래키
+ ws_admin int not null default 1,
+ ws_del char not null default 'n' ,
+ ws_delDate datetime  ##
+ ws_date datetime default CURRENT_TIMESTAMP ##
+ ws_ip varchar(100) not null, ##
+)default charset=utf8;
+
+
+mysql> desc jyp_workspace;
++----------+-------------+------+-----+---------+----------------+
+| Field    | Type        | Null | Key | Default | Extra          |
++----------+-------------+------+-----+---------+----------------+
+| ws_no    | int(11)     | NO   | PRI | NULL    | auto_increment |
+| ws_name  | varchar(20) | NO   |     | NULL    |                |
+| jyp_no   | int(11)     | NO   |     | NULL    |                |
+| ws_admin | int(11)     | NO   |     | 1       |                |
+| ws_del   | char(1)     | NO   |     | n       |                |
++----------+-------------+------+-----+---------+----------------+
+5 rows in set (0.01 sec)
+
+
+
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+※※※ 프로젝트관리자는 공동책임일 경우가 있음 
+ㅁ 테이블명 : jyp_project (프로젝트 리스트 ) 
+ㅁ 테이블 필드명 : 
+
+프로젝트 번호 : P_no int auto_increment primary key 
+프로젝트의 워크스페이스 번호 : WS_no int not null///프로젝트 추가했을때  번호가 부여됨    //외래키
+//프로젝트에 초대가 되면 프로젝트 번호가 부여되어 해당 멤버인지 판단할 수 있음 
+프로젝트 이름 : P_name varchar(100) not null //입력받은 이름 넣기 
+프로젝트 설명(선택사항) : P_info text //프로젝트에 대한 간단한 설명 
+프로젝트 공개 범위 설정 : P_public char(5) not null //공개 y or 비공개 n   
+//공개 - 워크스페이스에서 소속된 모든 멤버가 엑세스 가능 
+//비공개 - 프로젝트에서 소속된 멤버만
+(프로젝트에 해당되는 멤버 - PM_member에서 체크 ) 엑세스 가능 
+
+
+create table jyp_project(
+ P_no int auto_increment primary key ,
+ WS_no int not null,
+ P_name varchar(20) not null,
+ P_info varchar(100),
+ p_status int not null default 1, (1-상태없음 기본으로)
+ p_start datetime,
+ p_end datetime,
+ p_com datetime,
+ P_public char(5) not null,
+ p_date datetime default CURRENT_TIMESTAMP ##
+ p_ip varchar(100) not null, ##
+)default charset=utf8;
+
+
+
+mysql> desc jyp_project;
++----------+--------------+------+-----+---------+----------------+
+| Field    | Type         | Null | Key | Default | Extra          |
++----------+--------------+------+-----+---------+----------------+
+| WS_no    | int(11)      | NO   |     | NULL    |                |
+| P_no     | int(11)      | NO   | PRI | NULL    | auto_increment |
+| P_name   | varchar(20)  | NO   |     | NULL    |                |
+| P_info   | varchar(100) | YES  |     | NULL    |                |
+| P_public | char(1)      | NO   |     | NULL    |                |
++----------+--------------+------+-----+---------+----------------+
+5 rows in set (0.01 sec)
+
+
+///
+설명 추가
+
+프로젝트 그룹
+프로젝트 그룹에 추가하기
+프로젝트 상태
+시작일
+마감일
+실제 완료일
+프로젝트 관리자1  프로젝트 팀원 2
+권한 설정
+전체 액세스: 모든 프로젝트 팀원은 프로젝트 안에 있는 모든 업무 보기, 수정이 가능합니다.
+
+//
+
+
+
+※※※※멤버 초대 어떻게 ??  
+※방법1
+초대 될때마다 해당 멤버 필드명 추가해서 멤버인증해줌
+◎필드명 한 개 더 추가해주고
+alter table jyp_member 
+add P_+[해당프로젝트 번호] char ; 
+◎그 필드명에 멤버여부 주기 
+insert into jyp_member  set  P_+[해당프로젝트 번호]='y' where jyp_no= 초대멤버의 회원번호 ; 
+
+※방법2
+프로젝트 생성시 멤버관리 테이블이 생성 
+create table P[해당프로젝트의 번호 select해와서 붙여줌]_member  
+ex) 프로젝트 번호가 3이라면  멤버관리 테이블명 : P3_member
+ㅁ멤버관리 테이블 필드명:
+프로젝트에 소속된 멤버 닉네임 : PM_name  varchar(100) not null
+프로젝트에 소속된 멤버 번호 : PM_no int not null
+프로젝트에 소속된 멤버의 권한 : PM_access int not null default 1
+//2이면 팀원 1이면 관리자 
+
+※방법3############
+한 테이블에 몽땅 넣고 공통되는 필드명  (P_no) 추가해서 구분할지(서브쿼리 이용) 
+ㅁ 테이블명 : P_member (프로젝트에 소속된  멤버)  
+ㅁ 테이블 필드명 : 
+
+프로젝트의 워크스페이스 번호 : WS_no int not null///프로젝트 추가했을때  번호가 부여됨	
+해당 프로젝트의 번호 : P_no  int not null #####
+//해당 프로젝트의 이름 : P_name varchar(20) not null  ###  (P_no가 있으니까 빼도 되려나? ) 
+//해당 프로젝트에 소속된 사원 이름 : jyp_name varchar(100) not null  ##
+해당 프로젝트에 소속된 사원의 번호 : jyp_no int not null ##
+해당 프로젝트에 대한 권한 : P_access int not null default 1
+//2이면 팀원 1이면 관리자 
+
+create table P_member(
+	ws_no int not null,
+	p_no  int not null,
+	jyp_name varchar(100) not null,
+	jyp_no int not null,
+	p_access int not null default 1
+	
+	 pm_date datetime default CURRENT_TIMESTAMP ##
+	 pm_ip varchar(100) not null, ##
+)default charset=utf8;
+
+
+
+
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+
+
+//프로젝트 - 업무리스트 
+ ※※※※※이것도 서브쿼리 방식으로  해도 괜찮을지.. (taskwork도 이 방식으로 하는듯)
+ㅁ 테이블명 : P_worklist  (프로젝트 - 업무리스트) 
+ㅁ 테이블 필드명:
+ 
+ㅁ내가속한프로젝트
+ㅁ부서별 업무
+
+
+프로젝트의 워크스페이스 번호 : WS_no int not null ### 
+해당 프로젝트의 번호 : P_no  int not null #####
+해당 프로젝트의 이름 : P_name varchar(20) not null  ###   (P_no가 있으니까 빼도 되려나? ) 
+업무리스트번호 : WL_no int not null auto_increment primary key
+업무리스트이름: WL_list varchar(100) not null
+
+
+create table P_worklist(
+	WS_no int not null,
+	P_no  int not null,
+	P_name varchar(20) not null,
+	WL_no int not null auto_increment primary key,
+	WL_list varchar(100) not null,
+	
+	 wl_date datetime default CURRENT_TIMESTAMP ##
+	 wl_ip varchar(100) not null, ##
+)default charset=utf8;
+
+ 
+
+
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+//프로젝트 - 업무리스트 -업무 
+※테이블로 쪼갤지 / 한 테이블에 몽땅 넣고 WL_list필드명 추가해서 구분할지 ## 
+ㅁ 테이블명 : P_work (프로젝트 업무리스트의 업무)
+ㅁ 테이블 필드명 : 
+프로젝트의 워크스페이스 번호 : WS_no int not null ##
+해당 프로젝트의 번호 : P_no  int not null #####
+해당 업무리스트번호 : WL_no int not null ##
+해당 업무 번호 : work_no int not null auto_increment primary key 
+업무 이름  : work_title varchar(20) not null
+//업무 작성자 ( 로그인되어서 저장된(session) name으로 남기기 ) : w_writer varchar(100) not null
+//-> 작성자 번호로 할까? 
+업무 작성자의 회원 번호 : jyp_no int not null ##
+업무 내용 : work_content text not null
+업무 시작일 : work_start date
+업무 마감일  : worl_end date
+미리 알림기능 : work_alarm date
+업무 완료 유무 : work_finish int not null default 1
+//미완료: 1 완료 : 2
+
+create table P_work(
+  WS_no int not null,
+  P_no  int not null,
+  WL_no int not null ,
+  work_no int not null auto_increment primary key ,
+  work_title varchar(20) not null,
+  jyp_no int not null,
+  work_content text not null,
+  work_start date,
+  worl_end date,
+  work_alarm date,
+  work_finish int not null default 1
+  wl_date datetime default CURRENT_TIMESTAMP ##
+	 wl_ip varchar(100) not null ##
+)default charset=utf8;
+
+
+
+
+
+//
+코멘트는 어떻게?????  
+-> 코멘트 테이블따로? 
+ㅁ 테이블 P_coments 
+ㅁ 테이블 필드명 : 
+프로젝트의 워크스페이스 번호 : WS_no int not null ##
+해당 프로젝트의 번호 : P_no  int not null #####
+해당 업무리스트번호 : WL_no int not null ##
+해당 업무 번호 : work_no int not null ##
+코멘트 작성자 : co_writer varchar(100) not null  (session에 저장된 name으로 저장됨)  // 필드명을 회원정보랑 맞춰야하나 ?? (jyp_name)
+코멘트 작성날짜 : co_date datetime default CURRENT_TIMESTAMP
+
+
+create table p_coments(
+co_no int not null auto_increment primary key,
+ WS_no int not null ,
+ P_no  int not null,
+ WL_no int not null ,
+ work_no int not null,
+  co_writer varchar(100) not null,
+   co_date datetime default CURRENT_TIMESTAMP
+   wl_date datetime default CURRENT_TIMESTAMP ##
+	 wl_ip varchar(100) not null, ##
+)default charset=utf8;
+
+
+//
+※※※※※※
+배정된 멤버 : 여기서 처리안하고 jsp에서 선택한 멤버들 데이터 넘겨서 ㅁㅇㅁㅇㄴㄴㅁ
+ㅁ 테이블명 : PW_member (업무 담당 멤버) 
+ㅁ 테이블 필드명 : 
+프로젝트의 워크스페이스 번호 : WS_no int not null ##
+해당 프로젝트의 번호 : P_no  int not null #####
+해당 업무리스트번호 : WL_no int not null ##
+해당 업무 번호 : work_no int not null ##
+해당 프로젝트의 업무에 소속된 사원의 번호 : jyp_no int not null ##
+
+create table PW_member(
+//pw_no int not null auto_increment primary key,
+ws_no int not null ,
+p_no  int not null ,
+ wl_no int not null,
+ work_no int not null ,
+ jyp_no int not null
+)default charset=utf8;
+ 
+ 
+
+//
+태그
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
+<<db준비 >>
+ㅁ db명 : 
+ㅁ table : project_프로젝트명
+ㅁ 필드명 
+workList - 업무리스트이름 
+workName - 업무 이름 
+writer - 업무 작성자 ( 로그인되어서 저장된(session) name으로 남기기 )
+
+ㅁ권한 
+- workpace를 생성할때 그 사람에게 워크페이스 관리자 권한이 부여됨 
+- project를 생성할때 그 사람에게 프로젝트 관리자 권한이 부여됨 
+- 초대된 멤버들은 관리자가 설정한 권한에 따라 권한 부여
+
+
+
+////////////////////////////////////////////////
+
+임시로   p_work;
+alter table p_work
+change WS_no WS_no int not null default 1,
+ change P_no P_no int not null default 1, 
+  change WL_no WL_no int not null default 1; 
+////////////////
+
+insert into p_work (work_title, jyp_no, work_content, work_writer)
+ values ('제목','1','내용','작성자');
+
+
+
+
+
+create table p_work(
+WS_no int not null default 1,
+ P_no  int not null default 1 ,
+ WL_no int not null default 1 ,
+ work_no int not null auto_increment primary key ,
+ work_title varchar(20) not null,
+  jyp_no int not null,
+  work_content text not null,
+  work_start date,
+  worl_end date,
+  work_alarm date,
+ work_finish int not null default 1,
+ work_writer varchar(50) not null
+)default charset=utf8;

@@ -1,0 +1,239 @@
+  
+  ㅁ 멤버초대하기 (멤버리스트에 초대하기 기능 넣기  ) 
+  - 초대리스트 테이블 만들기 
+  
+  create table ws_invitation(
+  send_email varchar(100) not null,
+  send_ip varchar(100) not null,
+  get_email varchar(100) not null,
+  get_ip varchar(100) not null,
+  ws_no int not null,
+  ws_name varchar(100) not null,
+  acc_date datetime not null default CURRENT_TIMESTAMP,
+  ass_satatus char(5) not null default 'n'
+  )default charset=utf8;
+  
+mysql> desc ws_invitation
+    -> ;
++-------------+--------------+------+-----+-------------------+-------+
+| Field       | Type         | Null | Key | Default           | Extra |
++-------------+--------------+------+-----+-------------------+-------+
+| send_email  | varchar(100) | NO   |     | NULL              |       |
+| send_ip     | varchar(100) | NO   |     | NULL              |       |
+| get_email   | varchar(100) | NO   |     | NULL              |       |
+| get_ip      | varchar(100) | NO   |     | NULL              |       |
+| ws_no       | int(11)      | NO   |     | NULL              |       |
+| ws_name     | varchar(100) | NO   |     | NULL              |       |
+| acc_date    | datetime     | NO   |     | CURRENT_TIMESTAMP |       |
+| ass_satatus | char(5)      | NO   |     | n                 |       |
++-------------+--------------+------+-----+-------------------+-------+
+8 rows in set (0.03 sec)
+
+이메일 검색해서 
+검색한 유저 이메일, 이름 , 초대하기 버튼 
+
+-> jyp_member 에서  jyp_email 검색 
+-> 모달 창 띄우고 거기에 아작스 사용 
+send_no,send_ip에 초대보내는 유저의 정보 담기(현재의 유저)
+get_no,get_ip에 초대되는 유저의 정보 담기(userinfo dao에 초대하는 이메일 데이터 보내서 정보빼오기)
+ws_no,ws_name  현재 워크스페이스의 정보 담기 ㅐ(ws_info dao에 ws_no데이터 보내서 ws_name 데이터 빼오기)
+
+@초대리스트 등록///초대하기 버튼누르면 실행되는 Action
+insert into ws_invitation (send_no ,send_ip , get_no, get_ip, get_ip, ws_no, ws_name ) values (?,?,?,?,?,?,?,?) ;
+ -> 수정 번호 말고 이메일로 저장하자 
+ >>>> insert into ws_invitation (send_email ,send_ip , get_email, get_ip, get_ip, ws_no, ws_name ) values (?,?,?,?,?,?,?,?)
+**초대리스트 등록되면 
+등록날짜로부터 7일 뒤 삭제됨 () 
+ 
+ //7일뒤 날짜 검색  -> if 현재 날짜와 일치되면or현재날짜보다 작다면 삭제 
+mysql> select date_add( (select acc_date from ws_invitation) , INTERVAL 7 DAY);
++------------------------------------------------------------------+
+| date_add( (select acc_date from ws_invitation) , INTERVAL 7 DAY) |
++------------------------------------------------------------------+
+| 2020-08-10 01:09:42                                              |
++------------------------------------------------------------------+
+1 row in set (0.01 sec)
+
+@@지정된 값 일주일단위로 가져오기 
+select * from ws_invitation where DATE_ADD(acc_date, INTERVAL 7 DAY)<now() and acc_date<now()
+
+@@ acc_date의 7일 뒤 날짜가 '2020-08-014 14:58:23' 날짜보다 작은 데이터들 
+select * from ws_invitation where DATE_ADD(acc_date, INTERVAL 7 DAY) <' 2020-08-014 14:58:23'
+
+@@ acc_date의 3일 뒤 날짜가 현재 날짜보다 작은 데이터들
+select acc_date from ws_invitation where DATE_ADD(acc_date, INTERVAL 3 DAY) <now();
++---------------------+
+| acc_date            |
++---------------------+
+| 2020-08-06 17:13:54 |
+| 2020-08-07 02:41:46 |
+| 2020-08-07 11:23:07 |
++---------------------+
+
+@@ acc_date의 3일 뒤 날짜가 현재 날짜보다 큰 데이터들   (현재 날짜 2020-08-10 23:42:00)
+select acc_date from ws_invitation where DATE_ADD(acc_date, INTERVAL 3 DAY) >now();
++---------------------+
+| acc_date            |
++---------------------+
+| 2020-08-09 14:58:13 |
+| 2020-08-09 14:58:18 |
+| 2020-08-09 14:58:23 |
+| 2020-08-09 15:04:05 |
+| 2020-08-09 15:39:39 |
+| 2020-08-09 15:39:50 |
+| 2020-08-10 21:48:34 |
++---------------------+
+
+select acc_date from ws_invitation where DATE_ADD(acc_date, INTERVAL 1 DAY) >now();
+
+★★★★★★★★★★★★★★★★★★★★★★★★★
+@@acc_date의 7일 뒤 날짜가 현재날짜보다 작은 데이터들   ->>>>.#############이 값들을 지워주면 됨 
+select * from ws_invitation where DATE_ADD(acc_date, INTERVAL 7 DAY) <now();
+★★★★★★★★★★★★★★★★★★★★★★★★★
+
+
+////////TEST/////
+mysql> select acc_date from ws_invitation where DATE_ADD(acc_date, INTERVAL 2 DAY) <now();
++---------------------+
+| acc_date            |
++---------------------+
+| 2020-08-06 17:13:54 |
+| 2020-08-07 02:41:46 |
+| 2020-08-07 11:23:07 |
++---------------------+
+해당 데이터들 지우기 
+
+delete 
+select *
+delete
+from ws_invitation 
+where acc_date in (select acc_date from ws_invitation where DATE_ADD(acc_date, INTERVAL 2 DAY) <now());
+
+
+
+★★★★★★여러개 한꺼번에 삭제
+초대보낸 날짜의 2일 뒤의 날짜가 현재 날짜보다 크면 해당 레코드들 삭제하기 
+delete
+from ws_invitation 
+where acc_date in (
+ select tmp.acc_date from (select acc_date from ws_invitation where DATE_ADD(acc_date, INTERVAL 2 DAY) >now()) tmp
+);
+
+->now()가 acc_date의 이틀 뒤의 날짜보다 작다면 
+
+
+★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+5. 오늘을 기준으로 일주일전(7일이내)에 구매한 물품정보만을 조회하는 쿼리문을 작성하자.
+
+> SELECT * FROM purchaseT
+
+> WHERE date(buydate) >= date(subdate(now(), INTERVAL 7 DAY)) and date(buydate) <= date(now())
+
+> ORDER BY idx ASC;
+
+select*from ws_invitation
+where date(acc_date) >= date(subdate(now(), INTERVAL 7 DAY))   and date(acc_date) <= date(now())
+
+
+
+초대보낸 날짜의 7일 뒤의 날짜가 현재 날짜보다 크면 (7일이 지났으면) 해당 레코드들 삭제하기 
+select*from ws_invitation
+where   date(subdate(acc_date, INTERVAL 1 DAY)) < date(now());
+
+delete from ws_invitation
+where   date(subdate(acc_date, INTERVAL 1 DAY)) < date(now());★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+
+
+
+초대보낸 날짜의 7일 뒤의 날짜가 현재 날짜보다 크면 (7일이 지났으면) 해당 레코드들 삭제하기  (잘못 해석)
+delete
+from ws_invitation 
+where acc_date in (
+ select tmp.acc_date from ( select DATE_ADD(acc_date, INTERVAL 7 DAY) dday from ws_invitation) tmp where tmp.acc_date>now()   ) ;
+) > now()  ;
+-->어디다 걸어 놓ㅈ ?? 
+wsList 들어갈때? 
+
+//////////////
+
+날짜들의 디데이 한번에 ...      
+
+mysql> select acc_date from ws_invitation;  -> 7일 뒤 날짜 한번에 구하는 방법 
++---------------------+
+| acc_date            |
++---------------------+
+| 2020-08-06 17:13:54 |
+| 2020-08-07 02:41:46 |
+| 2020-08-07 11:23:07 |
+| 2020-08-09 14:58:13 |
+| 2020-08-09 14:58:18 |
+| 2020-08-09 14:58:23 |
+| 2020-08-09 15:04:05 |
+| 2020-08-09 15:39:39 |
+| 2020-08-09 15:39:50 |
+| 2020-08-10 21:48:34 |
++---------------------+
+
+mysql> select * from ws_invitation;
++---------+---------------+---------------+---------------+---------------+-------+-----------+---------------------+------------+
+| invi_no | send_email    | send_ip       | get_email     | get_ip        | ws_no | ws_name   | acc_date            | ass_status |
++---------+---------------+---------------+---------------+---------------+-------+-----------+---------------------+------------+
+|      22 | aaa@naver.com | 192.168.3.107 | 44@44         | 192.168.3.103 |     4 | WS 이름   | 2020-08-06 17:13:54 | x          |
+|      23 | aaa@naver.com | 192.168.3.107 | ccc@naver.com | 192.168.3.109 |     1 | AAAAA     | 2020-08-07 02:41:46 | y          |
+|      24 | ccc@naver.com | 192.168.3.109 | aaa@naver.com | 192.168.3.107 |     7 | CCC의 WS  | 2020-08-07 11:23:07 | y          |
+|      30 | aaa@naver.com | 192.168.3.107 | 333@333       | 192.168.3.103 |     4 | WS 이름   | 2020-08-09 14:58:13 | y          |
+|      31 | aaa@naver.com | 192.168.3.107 | ccc@naver.com | 192.168.3.109 |     4 | WS 이름   | 2020-08-09 14:58:18 | n          |
+|      32 | aaa@naver.com | 192.168.3.107 | 44@44         | 192.168.3.103 |     4 | WS 이름   | 2020-08-09 14:58:23 | y          |
+|      33 | 333@333       | 192.168.3.103 | 44@44         | 192.168.3.103 |     4 | WS 이름   | 2020-08-09 15:04:05 | n          |
+|      34 | aaa@naver.com | 192.168.3.107 | 333@333       | 192.168.3.103 |     1 | AAAAA     | 2020-08-09 15:39:39 | x          |
+|      35 | aaa@naver.com | 192.168.3.107 | ccc@naver.com | 192.168.3.109 |     1 | AAAAA     | 2020-08-09 15:39:50 | y          |
+|      36 | aaa@naver.com | 192.168.3.107 | Zoo@naver.com | 192.168.3.103 |     1 | AAAAA     | 2020-08-10 21:48:34 | n          |
++---------+---------------+---------------+---------------+---------------+-------+-----------+---------------------+------------+
+10 rows in set (0.00 sec)
+
+mysql>
+
+
+
+
+
+///////////////////////////////////////////////////////////////////
+
+@워크스페이스 입장할때 Action - 초대리스트에 유저가 있는지 확인하기 
+select*from ws_invitation where get_no =? (유저의 번호 ) //return값 : ArrayList (여러 곳에 초대 받을 수 있으니 ) 
+확인해서 초대리스트에 있다면 테이블에 데이터 띄우기  
+
+
+
+다되면 '초대메시지가 전송되었습니다.\n 초대메시지는 7일동안 유지됩니다'
+  ------------------------------------
+  @초대 수락하기 
+  ws_member에  등록.
+   -> ws_no , jyp_no , ws_Mip (jyp_ip)
+   등록되면ws_invitation에 해당되는 invi_no 삭제  
+   	-> delete from ws_invitation where invi_no = ?    // 
+  
+  
+  
+  
+  
+  
+  -----------------------
+  ㅁ 미리 알림 
+  - (* 미리알림 필드 work_alram이 p_wrok에 있는데 pw_member로 이동해야될듯 - 멤버마다 설정값이 다르므로 ) 
+  - 업무수정페이지(work_edit)에서 미리 알림 설정 
+  	-> 데이터는 pw_member테이블로 넘어가서 work_no와 jyp_no가 일치하는 레코드에서 work_alarm에 데이터 넣기  // @action
+  
+  워크스페이스 입장할때 검사하기
+  - 미리 알림 날짜가 
+  
+ 
+ 
+ 
+
+
+
+
+ 
+ 
